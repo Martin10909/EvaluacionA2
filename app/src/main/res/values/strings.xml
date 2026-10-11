@@ -1,3 +1,25 @@
 <resources>
     <string name="app_name">CashoLocal</string>
+    <string name="user_avatar">User Avatar</string>
+    <string name="welcome_label">Bienvenido,</string>
+    <string name="default_username">Usuario</string>
+    <string name="notifications">Notificaciones</string>
+    <string name="user_profile">Perfil de Usuario</string>
+    <string name="balance_title">Balance Total</string>
+    <string name="default_amount">$0.00</string>
+    <string name="owed_title">Me deben</string>
+    <string name="quick_income">Ingreso</string>
+    <string name="quick_expense">Gasto</string>
+    <string name="quick_split">Dividir</string>
+    <string name="accounts_header">Cuentas</string>
+    <string name="see_all">Ver todas</string>
+    <string name="add_account">+ Agregar</string>
+    <string name="transactions_header">Transacciones Recientes</string>
+    <string name="see_more">Ver más</string>
+    <string name="filter_transactions">Filtrar Transacciones</string>
+    <string name="search_transactions_hint">Buscar transacciones</string>
+    <string name="no_transactions">No hay transacciones recientes</string>
+    <string name="nav_home">Inicio</string>
+    <string name="nav_accounts">Cuentas</string>
+    <string name="nav_transactions">Transacciones</string>
 </resources>
