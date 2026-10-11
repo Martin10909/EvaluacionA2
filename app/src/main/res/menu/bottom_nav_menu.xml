@@ -5,11 +5,15 @@
         android:icon="@android:drawable/ic_menu_today"
         android:title="@string/nav_home" />
     <item
+        android:id="@+id/nav_compras"
+        android:icon="@android:drawable/ic_menu_agenda"
+        android:title="@string/nav_purchases" />
+    <item
+        android:id="@+id/nav_shared"
+        android:icon="@android:drawable/ic_menu_share"
+        android:title="@string/nav_shared" />
+    <item
         android:id="@+id/nav_accounts"
         android:icon="@android:drawable/ic_menu_manage"
         android:title="@string/nav_accounts" />
-    <item
-        android:id="@+id/nav_transactions"
-        android:icon="@android:drawable/ic_menu_agenda"
-        android:title="@string/nav_transactions" />
 </menu>

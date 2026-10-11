@@ -25,7 +25,7 @@ public class MainActivity2 extends AppCompatActivity {
             return insets;
         });
 
-        BottomNavigationView btnContenedor = findViewById(R.id.btvContenedor);
+        BottomNavigationView btvContenedor = findViewById(R.id.btvContenedor);
 
         // Cargar HomeFragment por defecto si no hay un estado guardado previo
         if (savedInstanceState == null) {
@@ -33,14 +33,22 @@ public class MainActivity2 extends AppCompatActivity {
         }
 
         // Listener para la navegación de la barra inferior
-        btnContenedor.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.nav_home) {
-                loadFragment(new HomeFragment());
-                return true;
-            }
-            return false;
-        });
+        if (btvContenedor != null) {
+            btvContenedor.setOnItemSelectedListener(item -> {
+                int itemId = item.getItemId();
+                if (itemId == R.id.nav_home) {
+                    loadFragment(new HomeFragment());
+                    return true;
+                } else if (itemId == R.id.nav_compras) {
+                    loadFragment(new PurchasesFragment());
+                    return true;
+                } else if (itemId == R.id.nav_shared) {
+                    loadFragment(new SharedFragment());
+                    return true;
+                }
+                return false;
+            });
+        }
     }
 
     private void loadFragment(Fragment fragment) {

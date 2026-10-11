@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinatorraizcompras"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F7"
+    tools:context=".PurchasesFragment">
+
+    <LinearLayout
+        android:id="@+id/llcontenedorprincipal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Summary Card -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cvtarjetaresumen"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:id="@+id/llseccionresumen"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#2E7D32"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="20dp">
+
+                <ImageView
+                    android:id="@+id/imgiconoresumen"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:contentDescription="@string/purchases_summary_label"
+                    android:src="@android:drawable/ic_menu_agenda"
+                    app:tint="#FFFFFF" />
+
+                <LinearLayout
+                    android:id="@+id/lldetallemonto"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvtituloresumencompras"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/purchases_summary_label"
+                        android:textColor="#E8F5E9"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvsubtituloresumen"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/purchases_summary_sub"
+                        android:textColor="#C8E6C9"
+                        android:textSize="11sp" />
+
+                    <TextView
+                        android:id="@+id/tvmontoresumencompras"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/default_amount"
+                        android:textColor="#FFFFFF"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Tabs -->
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/pestanascompras"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@android:color/transparent"
+            app:tabIndicatorColor="#2E7D32"
+            app:tabSelectedTextColor="#2E7D32"
+            app:tabTextColor="#757575">
+
+            <com.google.android.material.tabs.TabItem
+                android:id="@+id/pestanarealizadas"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tab_completed" />
+
+            <com.google.android.material.tabs.TabItem
+                android:id="@+id/pestanaagendadas"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tab_scheduled" />
+
+        </com.google.android.material.tabs.TabLayout>
+
+        <!-- List Section -->
+        <LinearLayout
+            android:id="@+id/llcontenedorlista"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="12dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvencabezadocompras"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="@string/purchases_header"
+                android:textColor="#212121"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvlistacompras"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@android:layout/simple_list_item_2" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- FAB for adding purchase -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabagregarcompra"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="24dp"
+        android:contentDescription="@string/add_purchase_desc"
+        android:src="@android:drawable/ic_input_add"
+        app:backgroundTint="#2E7D32"
+        app:tint="#FFFFFF" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

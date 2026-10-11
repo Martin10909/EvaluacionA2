@@ -22,4 +22,22 @@
     <string name="nav_home">Inicio</string>
     <string name="nav_accounts">Cuentas</string>
     <string name="nav_transactions">Transacciones</string>
+    <string name="nav_purchases">Compras</string>
+    <string name="nav_shared">Compartidos</string>
+
+    <!-- Purchases -->
+    <string name="purchases_summary_label">Resumen de Compras</string>
+    <string name="purchases_summary_sub">Total acumulado</string>
+    <string name="purchases_header">Lista de Compras</string>
+    <string name="tab_completed">Realizadas</string>
+    <string name="tab_scheduled">Agendadas</string>
+    <string name="add_purchase_desc">Agregar compra</string>
+
+    <!-- Shared -->
+    <string name="shared_title">Gastos Compartidos &amp; Deudas</string>
+    <string name="shared_subtitle">División de compras y cuentas&#8230;</string>
+    <string name="shared_owed_to_me_label">Por Cobrar a Otros</string>
+    <string name="shared_i_owe_label">Debo Pagar a Otros</string>
+    <string name="add_shared_expense_desc">Agregar gasto compartido</string>
+    <string name="share_account_btn">Compartir Cuenta</string>
 </resources>
