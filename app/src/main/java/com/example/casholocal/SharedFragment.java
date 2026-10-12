@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -68,9 +67,12 @@ public class SharedFragment extends Fragment {
 
     private void configurarListeners() {
         if (fabagregargastocompartido != null) {
-            fabagregargastocompartido.setOnClickListener(v -> 
-                Toast.makeText(getContext(), "Agregar nuevo gasto compartido", Toast.LENGTH_SHORT).show()
-            );
+            fabagregargastocompartido.setOnClickListener(v -> {
+                if (getParentFragmentManager() != null) {
+                    AddSharedExpenseDialogFragment dialog = new AddSharedExpenseDialogFragment();
+                    dialog.show(getParentFragmentManager(), "AddSharedExpenseDialog");
+                }
+            });
         }
     }
 

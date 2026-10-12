@@ -75,4 +75,22 @@
     <string name="marker_amount_default">$45.50</string>
     <string name="share_marker_btn">Compartir</string>
     <string name="back_map_desc">Volver al mapa</string>
+
+    <!-- Dialog Add Shared Expense -->
+    <string name="shared_dialog_title">Dividir Gasto Grupal</string>
+    <string name="shared_dialog_subtitle">Asignación equitativa o personalizada</string>
+    <string name="concept_hint">Concepto o Servicio</string>
+    <string name="total_amount_hint">Monto Total a Dividir ($)</string>
+    <string name="who_paid_label">¿Quién pagó el monto total?</string>
+    <string name="select_contacts_label">Selecciona Contactos Participantes:</string>
+    <string name="sample_contact_1">Contacto Ejemplo</string>
+    <string name="split_preview_default">Cada contacto deberá aportar un monto equitativo.</string>
+
+    <!-- Dialog Add Contact -->
+    <string name="add_contact_dialog_title">Nuevo Contacto</string>
+    <string name="add_contact_dialog_subtitle">Agregar a la agenda local&#8230;</string>
+    <string name="contact_name_hint">Nombre Completo</string>
+    <string name="contact_phone_hint">Teléfono / WhatsApp</string>
+    <string name="contact_email_hint">Correo Electrónico</string>
+    <string name="contact_notes_hint">Notas / Relación</string>
 </resources>

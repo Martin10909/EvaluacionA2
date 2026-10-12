@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -52,9 +51,12 @@ public class ContactsFragment extends Fragment {
 
     private void configurarListeners() {
         if (fabagregarcontacto != null) {
-            fabagregarcontacto.setOnClickListener(v -> 
-                Toast.makeText(getContext(), "Agregar nuevo contacto", Toast.LENGTH_SHORT).show()
-            );
+            fabagregarcontacto.setOnClickListener(v -> {
+                if (getParentFragmentManager() != null) {
+                    AddContactDialogFragment dialog = new AddContactDialogFragment();
+                    dialog.show(getParentFragmentManager(), "AddContactDialog");
+                }
+            });
         }
     }
 

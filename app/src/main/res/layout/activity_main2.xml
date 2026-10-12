@@ -20,9 +20,13 @@
         android:layout_width="match_parent"
         android:layout_height="64dp"
         android:layout_gravity="bottom"
+        android:elevation="16dp"
+        android:translationZ="16dp"
         android:background="#469048"
+        app:elevation="16dp"
         app:itemIconTint="#FFFFFF"
         app:itemTextColor="#FFFFFF"
+        app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_nav_menu" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
