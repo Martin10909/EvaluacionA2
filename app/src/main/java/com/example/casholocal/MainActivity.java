@@ -45,6 +45,9 @@ public class MainActivity extends AppCompatActivity {
                 } else if (itemId == R.id.nav_shared) {
                     loadFragment(new SharedFragment());
                     return true;
+                } else if (itemId == R.id.nav_contacts) {
+                    loadFragment(new ContactsFragment());
+                    return true;
                 }
                 return false;
             });

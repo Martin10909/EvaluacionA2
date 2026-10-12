@@ -1,5 +1,6 @@
 package com.example.casholocal;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -86,6 +87,7 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         initViews(view);
+        configurarListeners();
         return view;
     }
 
@@ -143,6 +145,28 @@ public class HomeFragment extends Fragment {
         // Containers
         rvcuentas = view.findViewById(R.id.rvcuentas);
         rvtransaccionesrecientes = view.findViewById(R.id.rvtransaccionesrecientes);
+    }
+
+    private void configurarListeners() {
+        View.OnClickListener listenerAbrirDialogo = v -> {
+            if (getParentFragmentManager() != null) {
+                AddTransactionDialogFragment dialog = new AddTransactionDialogFragment();
+                dialog.show(getParentFragmentManager(), "AddTransactionDialog");
+            }
+        };
+
+        if (btningresorapido != null) btningresorapido.setOnClickListener(listenerAbrirDialogo);
+        if (btngastorapido != null) btngastorapido.setOnClickListener(listenerAbrirDialogo);
+        if (btndividirrapido != null) btndividirrapido.setOnClickListener(listenerAbrirDialogo);
+
+        if (btnfiltrartransacciones != null) {
+            btnfiltrartransacciones.setOnClickListener(v -> {
+                if (getActivity() != null) {
+                    Intent intent = new Intent(getActivity(), MapActivity.class);
+                    startActivity(intent);
+                }
+            });
+        }
     }
 
     // Getters

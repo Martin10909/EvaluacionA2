@@ -24,6 +24,7 @@
     <string name="nav_transactions">Transacciones</string>
     <string name="nav_purchases">Compras</string>
     <string name="nav_shared">Compartidos</string>
+    <string name="nav_contacts">Contactos</string>
 
     <!-- Purchases -->
     <string name="purchases_summary_label">Resumen de Compras</string>
@@ -40,4 +41,38 @@
     <string name="shared_i_owe_label">Debo Pagar a Otros</string>
     <string name="add_shared_expense_desc">Agregar gasto compartido</string>
     <string name="share_account_btn">Compartir Cuenta</string>
+
+    <!-- Contacts -->
+    <string name="contacts_title">Directorio de Contactos</string>
+    <string name="contacts_count_default">0 contactos registrados</string>
+    <string name="add_contact_desc">Agregar contacto</string>
+
+    <!-- Dialog Add Transaction -->
+    <string name="dialog_title">Registrar Movimiento</string>
+    <string name="dialog_subtitle">Ingreso o egreso financiero</string>
+    <string name="rb_expense_label">Gasto / Egreso</string>
+    <string name="rb_income_label">Ingreso</string>
+    <string name="amount_hint">Monto ($)</string>
+    <string name="associated_account_label">Cuenta Asociada</string>
+    <string name="category_hint">Categoría</string>
+    <string name="description_hint">Descripción / Nota</string>
+    <string name="gps_title">Ubicación GPS</string>
+    <string name="capture_gps_btn">Capturar GPS</string>
+    <string name="default_gps_coords">GPS: -33.4372, -70.6506</string>
+    <string name="place_name_hint">Nombre del lugar</string>
+    <string name="cancel_btn">Cancelar</string>
+    <string name="save_btn">Guardar</string>
+
+    <!-- Map -->
+    <string name="map_title">Mapa de Gastos</string>
+    <string name="map_subtitle">Ubicaciones con GPS registrado</string>
+    <string name="recenter_btn">Recentrar</string>
+    <string name="chip_all">Todos</string>
+    <string name="chip_expenses">Gastos</string>
+    <string name="chip_incomes">Ingresos</string>
+    <string name="marker_title_default">Compra en Supermercado</string>
+    <string name="marker_sub_default">Gasto de $45.50 - Cuenta Principal</string>
+    <string name="marker_amount_default">$45.50</string>
+    <string name="share_marker_btn">Compartir</string>
+    <string name="back_map_desc">Volver al mapa</string>
 </resources>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cvitemcontacto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="6dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:id="@+id/llcontenedoritemcontacto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tvinicialcontacto"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="#E8F5E9"
+            android:gravity="center"
+            android:textColor="#2E7D32"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:text="C" />
+
+        <LinearLayout
+            android:id="@+id/lldetallesitemcontacto"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvnombrecontacto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#212121"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                tools:text="Carlos Mendoza" />
+
+            <TextView
+                android:id="@+id/tvdetallescontacto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="#757575"
+                android:textSize="12sp"
+                tools:text="+52 555 123 4567" />
+
+            <TextView
+                android:id="@+id/tvestadodeudacontacto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="#E8F5E9"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:textColor="#2E7D32"
+                android:textSize="11sp"
+                tools:text="Al día" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnaccioncontacto"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/contacts_title"
+            android:src="@android:drawable/ic_menu_call"
+            app:tint="#757575" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

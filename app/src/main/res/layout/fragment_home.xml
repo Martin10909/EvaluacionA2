@@ -6,6 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
+    android:clipToPadding="false"
+    android:paddingBottom="16dp"
     android:background="#F5F5F7"
     tools:context=".HomeFragment">
 
@@ -29,7 +31,7 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:contentDescription="@string/user_avatar"
-                android:src="@drawable/ic_launcher_foreground"
+                android:src="@android:drawable/ic_menu_gallery"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
