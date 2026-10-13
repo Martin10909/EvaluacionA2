@@ -17,6 +17,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Top Header Row -->
         <LinearLayout
             android:id="@+id/llitemcabecera"
             android:layout_width="match_parent"
@@ -70,6 +71,7 @@
                 tools:text="$120.00" />
         </LinearLayout>
 
+        <!-- Notes & Location -->
         <TextView
             android:id="@+id/tvitemnotas"
             android:layout_width="wrap_content"
@@ -88,16 +90,25 @@
             android:textSize="12sp"
             tools:text="Ubicación: Restaurante Central" />
 
+        <!-- Divider -->
+        <View
+            android:id="@+id/vitemdivisor"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="8dp"
+            android:background="#E0E0E0" />
+
+        <!-- Splits Section Header -->
         <TextView
             android:id="@+id/tvitemdesglose"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:textColor="#212121"
             android:textSize="12sp"
             android:textStyle="bold"
             tools:text="Desglose por Participante:" />
 
+        <!-- Splits Container (layout_splits_container) -->
         <LinearLayout
             android:id="@+id/llcontenedordesglose"
             android:layout_width="match_parent"
@@ -112,7 +123,6 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/tvnombreparticipante1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -121,7 +131,6 @@
                     tools:text="Juan Pérez" />
 
                 <TextView
-                    android:id="@+id/tvmontoparticipante1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="#757575"
@@ -131,6 +140,7 @@
 
         </LinearLayout>
 
+        <!-- Share Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btncompartircuenta"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"

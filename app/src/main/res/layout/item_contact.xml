@@ -65,7 +65,8 @@
                 android:paddingVertical="2dp"
                 android:textColor="#2E7D32"
                 android:textSize="11sp"
-                tools:text="Al día" />
+                tools:text="Te debe $300.00" />
+
         </LinearLayout>
 
         <ImageButton
@@ -74,8 +75,8 @@
             android:layout_height="36dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/contacts_title"
-            android:src="@android:drawable/ic_menu_call"
-            app:tint="#757575" />
+            android:src="@android:drawable/ic_menu_share"
+            app:tint="#2E7D32" />
 
     </LinearLayout>
 
