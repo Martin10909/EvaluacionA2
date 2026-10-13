@@ -2,21 +2,21 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/coordinatorraizprincipal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity2">
+    tools:context=".MainActivity">
 
+    <!-- Container for Fragments (fragment_container) -->
     <FrameLayout
-        android:id="@+id/frameLayout"
+        android:id="@+id/contenedorfragmento"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="64dp">
+        android:layout_marginBottom="64dp" />
 
-    </FrameLayout>
-
+    <!-- Bottom Navigation Bar (bottom_navigation, 64dp, 5 items) -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/btvContenedor"
+        android:id="@+id/navegacioninferior"
         android:layout_width="match_parent"
         android:layout_height="64dp"
         android:layout_gravity="bottom"

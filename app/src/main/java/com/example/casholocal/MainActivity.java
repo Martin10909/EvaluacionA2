@@ -1,5 +1,6 @@
 package com.example.casholocal;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -17,24 +18,24 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main2);
+        setContentView(R.layout.activity_main);
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.coordinatorraizprincipal), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        BottomNavigationView btvContenedor = findViewById(R.id.btvContenedor);
+        BottomNavigationView navegacioninferior = findViewById(R.id.navegacioninferior);
 
         // Cargar HomeFragment por defecto si no hay un estado guardado previo
         if (savedInstanceState == null) {
             loadFragment(new HomeFragment());
         }
 
-        // Listener para la navegación de la barra inferior
-        if (btvContenedor != null) {
-            btvContenedor.setOnItemSelectedListener(item -> {
+        // Listener para la navegación de la barra inferior con 5 opciones
+        if (navegacioninferior != null) {
+            navegacioninferior.setOnItemSelectedListener(item -> {
                 int itemId = item.getItemId();
                 if (itemId == R.id.nav_home) {
                     loadFragment(new HomeFragment());
@@ -48,6 +49,10 @@ public class MainActivity extends AppCompatActivity {
                 } else if (itemId == R.id.nav_contacts) {
                     loadFragment(new ContactsFragment());
                     return true;
+                } else if (itemId == R.id.nav_map) {
+                    Intent intent = new Intent(this, MapActivity.class);
+                    startActivity(intent);
+                    return true;
                 }
                 return false;
             });
@@ -56,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadFragment(Fragment fragment) {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.frameLayout, fragment)
+                .replace(R.id.contenedorfragmento, fragment)
                 .commit();
     }
 }

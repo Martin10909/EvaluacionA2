@@ -16,4 +16,8 @@
         android:id="@+id/nav_contacts"
         android:icon="@android:drawable/ic_menu_myplaces"
         android:title="@string/nav_contacts" />
+    <item
+        android:id="@+id/nav_map"
+        android:icon="@android:drawable/ic_menu_compass"
+        android:title="@string/nav_map" />
 </menu>

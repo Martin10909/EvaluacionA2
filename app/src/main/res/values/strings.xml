@@ -25,6 +25,7 @@
     <string name="nav_purchases">Compras</string>
     <string name="nav_shared">Compartidos</string>
     <string name="nav_contacts">Contactos</string>
+    <string name="nav_map">Mapa</string>
 
     <!-- Purchases -->
     <string name="purchases_summary_label">Resumen de Compras</string>
