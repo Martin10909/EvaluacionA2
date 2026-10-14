@@ -2,6 +2,7 @@ package com.example.casholocal;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,8 +10,6 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
-
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,35 +25,42 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        BottomNavigationView navegacioninferior = findViewById(R.id.navegacioninferior);
-
         // Cargar HomeFragment por defecto si no hay un estado guardado previo
         if (savedInstanceState == null) {
             loadFragment(new HomeFragment());
         }
 
-        // Listener para la navegación de la barra inferior con 5 opciones
-        if (navegacioninferior != null) {
-            navegacioninferior.setOnItemSelectedListener(item -> {
-                int itemId = item.getItemId();
-                if (itemId == R.id.nav_home) {
-                    loadFragment(new HomeFragment());
-                    return true;
-                } else if (itemId == R.id.nav_compras) {
-                    loadFragment(new PurchasesFragment());
-                    return true;
-                } else if (itemId == R.id.nav_shared) {
-                    loadFragment(new SharedFragment());
-                    return true;
-                } else if (itemId == R.id.nav_contacts) {
-                    loadFragment(new ContactsFragment());
-                    return true;
-                } else if (itemId == R.id.nav_map) {
-                    Intent intent = new Intent(this, MapActivity.class);
-                    startActivity(intent);
-                    return true;
-                }
-                return false;
+        // Configurar los botones de navegación de la barra inferior personalizada
+        configurarNavegacionInferior();
+    }
+
+    private void configurarNavegacionInferior() {
+        View btnInicio = findViewById(R.id.btnnavegacioninicio);
+        View btnCompras = findViewById(R.id.btnnavegacioncompras);
+        View btnCompartidos = findViewById(R.id.btnnavegacioncompartidos);
+        View btnContactos = findViewById(R.id.btnnavegacioncontactos);
+        View btnMapa = findViewById(R.id.btnnavegacionmapa);
+
+        if (btnInicio != null) {
+            btnInicio.setOnClickListener(v -> loadFragment(new HomeFragment()));
+        }
+
+        if (btnCompras != null) {
+            btnCompras.setOnClickListener(v -> loadFragment(new PurchasesFragment()));
+        }
+
+        if (btnCompartidos != null) {
+            btnCompartidos.setOnClickListener(v -> loadFragment(new SharedFragment()));
+        }
+
+        if (btnContactos != null) {
+            btnContactos.setOnClickListener(v -> loadFragment(new ContactsFragment()));
+        }
+
+        if (btnMapa != null) {
+            btnMapa.setOnClickListener(v -> {
+                Intent intent = new Intent(this, MapActivity.class);
+                startActivity(intent);
             });
         }
     }
