@@ -6,14 +6,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.List;
+import java.util.Locale;
 
 public class SharedFragment extends Fragment {
 
@@ -34,6 +39,9 @@ public class SharedFragment extends Fragment {
     private RecyclerView rvgastoscompartidos;
     private FloatingActionButton fabagregargastocompartido;
 
+    private DatabaseHelper dbHelper;
+    private SharedExpenseAdapter adapter;
+
     public SharedFragment() {
         // Constructor público vacío requerido
     }
@@ -43,6 +51,13 @@ public class SharedFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_shared, container, false);
         initViews(view);
+
+        if (getContext() != null) {
+            dbHelper = new DatabaseHelper(getContext());
+            configurarRecyclerView();
+            cargarDatosReales();
+        }
+
         configurarListeners();
         return view;
     }
@@ -65,6 +80,38 @@ public class SharedFragment extends Fragment {
         fabagregargastocompartido = view.findViewById(R.id.fabagregargastocompartido);
     }
 
+    private void configurarRecyclerView() {
+        if (rvgastoscompartidos != null && getContext() != null) {
+            rvgastoscompartidos.setLayoutManager(new LinearLayoutManager(getContext()));
+            List<DeudaModel> deudas = dbHelper.obtenerListaDeudas();
+            adapter = new SharedExpenseAdapter(deudas, deuda -> {
+                dbHelper.marcarDeudaComoPagada(deuda.getId());
+                Toast.makeText(getContext(), "Deuda marcada como pagada", Toast.LENGTH_SHORT).show();
+                cargarDatosReales();
+            });
+            rvgastoscompartidos.setAdapter(adapter);
+        }
+    }
+
+    public void cargarDatosReales() {
+        if (dbHelper != null) {
+            double totalMeDeben = dbHelper.obtenerTotalMeDeben();
+            double totalYoDebo = dbHelper.obtenerTotalYoDebo();
+
+            if (tvmedebencompartido != null) {
+                tvmedebencompartido.setText(String.format(Locale.getDefault(), "$%.2f", totalMeDeben));
+            }
+
+            if (tvyodebo != null) {
+                tvyodebo.setText(String.format(Locale.getDefault(), "$%.2f", totalYoDebo));
+            }
+
+            if (adapter != null) {
+                adapter.actualizarLista(dbHelper.obtenerListaDeudas());
+            }
+        }
+    }
+
     private void configurarListeners() {
         if (fabagregargastocompartido != null) {
             fabagregargastocompartido.setOnClickListener(v -> {
@@ -74,6 +121,12 @@ public class SharedFragment extends Fragment {
                 }
             });
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        cargarDatosReales();
     }
 
     // Getters

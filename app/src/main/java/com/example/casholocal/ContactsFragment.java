@@ -11,9 +11,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.List;
 
 public class ContactsFragment extends Fragment {
 
@@ -26,6 +29,9 @@ public class ContactsFragment extends Fragment {
     private RecyclerView rvlistacontactos;
     private FloatingActionButton fabagregarcontacto;
 
+    private DatabaseHelper dbHelper;
+    private ContactoAdapter adapter;
+
     public ContactsFragment() {
         // Constructor público vacío requerido
     }
@@ -35,6 +41,13 @@ public class ContactsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_contacts, container, false);
         initViews(view);
+
+        if (getContext() != null) {
+            dbHelper = new DatabaseHelper(getContext());
+            configurarRecyclerView();
+            cargarContactosReales();
+        }
+
         configurarListeners();
         return view;
     }
@@ -49,6 +62,30 @@ public class ContactsFragment extends Fragment {
         fabagregarcontacto = view.findViewById(R.id.fabagregarcontacto);
     }
 
+    private void configurarRecyclerView() {
+        if (rvlistacontactos != null && getContext() != null) {
+            rvlistacontactos.setLayoutManager(new LinearLayoutManager(getContext()));
+            List<ContactoModel> contactos = dbHelper.obtenerContactos();
+            adapter = new ContactoAdapter(contactos);
+            rvlistacontactos.setAdapter(adapter);
+        }
+    }
+
+    public void cargarContactosReales() {
+        if (dbHelper != null) {
+            List<ContactoModel> contactos = dbHelper.obtenerContactos();
+            int cantidad = dbHelper.obtenerCantidadContactos();
+
+            if (tvcontadorcontactos != null) {
+                tvcontadorcontactos.setText(cantidad + " contactos registrados");
+            }
+
+            if (adapter != null) {
+                adapter.actualizarLista(contactos);
+            }
+        }
+    }
+
     private void configurarListeners() {
         if (fabagregarcontacto != null) {
             fabagregarcontacto.setOnClickListener(v -> {
@@ -58,6 +95,12 @@ public class ContactsFragment extends Fragment {
                 }
             });
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        cargarContactosReales();
     }
 
     // Getters

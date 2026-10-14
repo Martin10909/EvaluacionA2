@@ -2,6 +2,8 @@ package com.example.casholocal;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,21 +14,27 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.List;
+import java.util.Locale;
+
 public class HomeFragment extends Fragment {
 
-    // Layouts & Containers
+    // 44 Componentes de la Paleta
     private NestedScrollView nsvprincipal;
     private ConstraintLayout clraizhome;
     private ConstraintLayout clseccionencabezado;
@@ -44,7 +52,6 @@ public class HomeFragment extends Fragment {
     private ConstraintLayout clcontenedortransacciones;
     private FrameLayout flcapacarga;
 
-    // TextViews
     private TextView tvbienvenida;
     private TextView tvnombreusuario;
     private TextView tvtitulobalance;
@@ -60,13 +67,11 @@ public class HomeFragment extends Fragment {
     private TextView tvvermastransacciones;
     private TextView tvsintransacciones;
 
-    // Buttons
     private ImageButton btnnotificaciones;
     private ImageButton btnperfilusuario;
     private MaterialButton btnagregarcuenta;
     private ImageButton btnfiltrartransacciones;
 
-    // Widgets & RecyclerViews
     private ImageView imgavatar;
     private View vdivisor1;
     private ImageView imgiconoingreso;
@@ -78,6 +83,10 @@ public class HomeFragment extends Fragment {
     private RecyclerView rvtransaccionesrecientes;
     private ProgressBar pbcargando;
 
+    private DatabaseHelper dbHelper;
+    private CuentaAdapter cuentaAdapter;
+    private MovimientoAdapter movimientoAdapter;
+
     public HomeFragment() {
         // Required empty public constructor
     }
@@ -87,12 +96,18 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         initViews(view);
+
+        if (getContext() != null) {
+            dbHelper = new DatabaseHelper(getContext());
+            configurarRecyclerViews();
+            cargarDatosDesdeBaseDeDatos();
+        }
+
         configurarListeners();
         return view;
     }
 
     private void initViews(View view) {
-        // Layouts
         nsvprincipal = view.findViewById(R.id.nsvprincipal);
         clraizhome = view.findViewById(R.id.clraizhome);
         clseccionencabezado = view.findViewById(R.id.clseccionencabezado);
@@ -110,7 +125,6 @@ public class HomeFragment extends Fragment {
         clcontenedortransacciones = view.findViewById(R.id.clcontenedortransacciones);
         flcapacarga = view.findViewById(R.id.flcapacarga);
 
-        // Text
         tvbienvenida = view.findViewById(R.id.tvbienvenida);
         tvnombreusuario = view.findViewById(R.id.tvnombreusuario);
         tvtitulobalance = view.findViewById(R.id.tvtitulobalance);
@@ -126,13 +140,11 @@ public class HomeFragment extends Fragment {
         tvvermastransacciones = view.findViewById(R.id.tvvermastransacciones);
         tvsintransacciones = view.findViewById(R.id.tvsintransacciones);
 
-        // Buttons
         btnnotificaciones = view.findViewById(R.id.btnnotificaciones);
         btnperfilusuario = view.findViewById(R.id.btnperfilusuario);
         btnagregarcuenta = view.findViewById(R.id.btnagregarcuenta);
         btnfiltrartransacciones = view.findViewById(R.id.btnfiltrartransacciones);
 
-        // Widgets
         imgavatar = view.findViewById(R.id.imgavatar);
         vdivisor1 = view.findViewById(R.id.vdivisor1);
         imgiconoingreso = view.findViewById(R.id.imgiconoingreso);
@@ -142,22 +154,84 @@ public class HomeFragment extends Fragment {
         etbuscartransacciones = view.findViewById(R.id.etbuscartransacciones);
         pbcargando = view.findViewById(R.id.pbcargando);
 
-        // Containers
         rvcuentas = view.findViewById(R.id.rvcuentas);
         rvtransaccionesrecientes = view.findViewById(R.id.rvtransaccionesrecientes);
     }
 
-    private void configurarListeners() {
-        View.OnClickListener listenerAbrirDialogo = v -> {
-            if (getParentFragmentManager() != null) {
-                AddTransactionDialogFragment dialog = new AddTransactionDialogFragment();
-                dialog.show(getParentFragmentManager(), "AddTransactionDialog");
+    private void configurarRecyclerViews() {
+        if (getContext() != null) {
+            if (rvcuentas != null) {
+                rvcuentas.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+                cuentaAdapter = new CuentaAdapter(dbHelper.obtenerCuentas());
+                rvcuentas.setAdapter(cuentaAdapter);
             }
-        };
 
-        if (btningresorapido != null) btningresorapido.setOnClickListener(listenerAbrirDialogo);
-        if (btngastorapido != null) btngastorapido.setOnClickListener(listenerAbrirDialogo);
-        if (btndividirrapido != null) btndividirrapido.setOnClickListener(listenerAbrirDialogo);
+            if (rvtransaccionesrecientes != null) {
+                rvtransaccionesrecientes.setLayoutManager(new LinearLayoutManager(getContext()));
+                movimientoAdapter = new MovimientoAdapter(dbHelper.obtenerMovimientos(""));
+                rvtransaccionesrecientes.setAdapter(movimientoAdapter);
+            }
+        }
+    }
+
+    public void cargarDatosDesdeBaseDeDatos() {
+        if (dbHelper != null) {
+            double saldoTotal = dbHelper.calcularSaldoTotalGlobal();
+            double meDebenTotal = dbHelper.obtenerTotalMeDeben();
+
+            if (tvbalancetotal != null) {
+                tvbalancetotal.setText(String.format(Locale.getDefault(), "$%.2f", saldoTotal));
+            }
+
+            if (tvmedeben != null) {
+                tvmedeben.setText(String.format(Locale.getDefault(), "$%.2f", meDebenTotal));
+            }
+
+            if (cuentaAdapter != null) {
+                cuentaAdapter.actualizarLista(dbHelper.obtenerCuentas());
+            }
+
+            if (movimientoAdapter != null) {
+                String filtro = etbuscartransacciones != null && etbuscartransacciones.getText() != null ? etbuscartransacciones.getText().toString() : "";
+                List<MovimientoModel> movimientos = dbHelper.obtenerMovimientos(filtro);
+                movimientoAdapter.actualizarLista(movimientos);
+
+                if (tvsintransacciones != null) {
+                    tvsintransacciones.setVisibility(movimientos.isEmpty() ? View.VISIBLE : View.GONE);
+                }
+            }
+        }
+    }
+
+    private void configurarListeners() {
+        if (btningresorapido != null) {
+            btningresorapido.setOnClickListener(v -> abrirDialogoMovimiento());
+        }
+
+        if (btngastorapido != null) {
+            btngastorapido.setOnClickListener(v -> abrirDialogoMovimiento());
+        }
+
+        if (btndividirrapido != null) {
+            btndividirrapido.setOnClickListener(v -> {
+                if (getParentFragmentManager() != null) {
+                    AddSharedExpenseDialogFragment dialog = new AddSharedExpenseDialogFragment();
+                    dialog.show(getParentFragmentManager(), "AddSharedExpenseDialog");
+                }
+            });
+        }
+
+        if (btnagregarcuenta != null) {
+            btnagregarcuenta.setOnClickListener(v -> mostrarDialogoNuevaCuenta());
+        }
+
+        if (btnperfilusuario != null) {
+            btnperfilusuario.setOnClickListener(v -> Toast.makeText(getContext(), "Perfil de Usuario: " + tvnombreusuario.getText(), Toast.LENGTH_SHORT).show());
+        }
+
+        if (btnnotificaciones != null) {
+            btnnotificaciones.setOnClickListener(v -> Toast.makeText(getContext(), "Sin notificaciones pendientes", Toast.LENGTH_SHORT).show());
+        }
 
         if (btnfiltrartransacciones != null) {
             btnfiltrartransacciones.setOnClickListener(v -> {
@@ -167,6 +241,61 @@ public class HomeFragment extends Fragment {
                 }
             });
         }
+
+        if (etbuscartransacciones != null) {
+            etbuscartransacciones.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (dbHelper != null && movimientoAdapter != null) {
+                        List<MovimientoModel> listaFiltrada = dbHelper.obtenerMovimientos(s.toString());
+                        movimientoAdapter.actualizarLista(listaFiltrada);
+                        if (tvsintransacciones != null) {
+                            tvsintransacciones.setVisibility(listaFiltrada.isEmpty() ? View.VISIBLE : View.GONE);
+                        }
+                    }
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {}
+            });
+        }
+    }
+
+    private void abrirDialogoMovimiento() {
+        if (getParentFragmentManager() != null) {
+            AddTransactionDialogFragment dialog = new AddTransactionDialogFragment();
+            dialog.show(getParentFragmentManager(), "AddTransactionDialog");
+        }
+    }
+
+    private void mostrarDialogoNuevaCuenta() {
+        if (getContext() == null) return;
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Nueva Cuenta");
+
+        final EditText etNombre = new EditText(getContext());
+        etNombre.setHint("Nombre de la cuenta (ej. Ahorro)");
+        builder.setView(etNombre);
+
+        builder.setPositiveButton("Guardar", (dialog, which) -> {
+            String nombre = etNombre.getText().toString().trim();
+            if (!nombre.isEmpty()) {
+                dbHelper.insertarCuenta(new CuentaModel(0, nombre, "Personal", 0.00));
+                cargarDatosDesdeBaseDeDatos();
+                Toast.makeText(getContext(), "Cuenta creada", Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton("Cancelar", null);
+        builder.show();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        cargarDatosDesdeBaseDeDatos();
     }
 
     // Getters

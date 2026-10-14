@@ -25,6 +25,9 @@ import androidx.fragment.app.DialogFragment;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AddTransactionDialogFragment extends DialogFragment {
 
     // 26 Componentes de la Paleta
@@ -55,6 +58,9 @@ public class AddTransactionDialogFragment extends DialogFragment {
     private MaterialButton btncancelarmovimiento;
     private MaterialButton btnguardarmovimiento;
 
+    private DatabaseHelper dbHelper;
+    private List<CuentaModel> listaCuentas = new ArrayList<>();
+
     public AddTransactionDialogFragment() {
         // Constructor público vacío requerido
     }
@@ -64,7 +70,12 @@ public class AddTransactionDialogFragment extends DialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_add_transaction, container, false);
         initViews(view);
-        configurarSpinner();
+
+        if (getContext() != null) {
+            dbHelper = new DatabaseHelper(getContext());
+            configurarSpinner();
+        }
+
         configurarListeners();
         return view;
     }
@@ -108,9 +119,16 @@ public class AddTransactionDialogFragment extends DialogFragment {
     }
 
     private void configurarSpinner() {
-        if (getContext() != null && spcuentaasociada != null) {
-            String[] cuentas = {"Cuenta Principal", "Efectivo", "Tarjeta de Débito", "Ahorros"};
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, cuentas);
+        if (dbHelper != null && spcuentaasociada != null && getContext() != null) {
+            listaCuentas = dbHelper.obtenerCuentas();
+            List<String> nombresCuentas = new ArrayList<>();
+            for (CuentaModel c : listaCuentas) {
+                nombresCuentas.add(c.getNombre());
+            }
+            if (nombresCuentas.isEmpty()) {
+                nombresCuentas.add("Cuenta Principal");
+            }
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, nombresCuentas);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spcuentaasociada.setAdapter(adapter);
         }
@@ -132,8 +150,42 @@ public class AddTransactionDialogFragment extends DialogFragment {
 
         if (btnguardarmovimiento != null) {
             btnguardarmovimiento.setOnClickListener(v -> {
-                Toast.makeText(getContext(), "Movimiento registrado exitosamente", Toast.LENGTH_SHORT).show();
-                dismiss();
+                String montoStr = etmonto != null && etmonto.getText() != null ? etmonto.getText().toString().trim() : "";
+                if (montoStr.isEmpty()) {
+                    Toast.makeText(getContext(), "Por favor ingresa un monto válido", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                double monto = 0;
+                try {
+                    monto = Double.parseDouble(montoStr);
+                } catch (Exception e) {
+                    Toast.makeText(getContext(), "Monto inválido", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                boolean esIngreso = rbingreso != null && rbingreso.isChecked();
+                String tipo = esIngreso ? "ingreso" : "egreso";
+                String categoria = etcategoria != null && etcategoria.getText() != null && !etcategoria.getText().toString().trim().isEmpty() ? etcategoria.getText().toString().trim() : "General";
+                String descripcion = etdescripcionnota != null && etdescripcionnota.getText() != null ? etdescripcionnota.getText().toString().trim() : "Movimiento";
+
+                long cuentaId = 1;
+                if (spcuentaasociada != null && !listaCuentas.isEmpty()) {
+                    int pos = spcuentaasociada.getSelectedItemPosition();
+                    if (pos >= 0 && pos < listaCuentas.size()) {
+                        cuentaId = listaCuentas.get(pos).getId();
+                    }
+                }
+
+                if (dbHelper != null) {
+                    dbHelper.insertarMovimiento(new MovimientoModel(0, cuentaId, tipo, monto, descripcion, "Hoy", -33.4372, -70.6506, categoria));
+                    Toast.makeText(getContext(), "Movimiento registrado", Toast.LENGTH_SHORT).show();
+
+                    if (getParentFragment() instanceof HomeFragment) {
+                        ((HomeFragment) getParentFragment()).cargarDatosDesdeBaseDeDatos();
+                    }
+                    dismiss();
+                }
             });
         }
     }

@@ -81,8 +81,28 @@ public class AddContactDialogFragment extends DialogFragment {
 
         if (btnguardarcontacto != null) {
             btnguardarcontacto.setOnClickListener(v -> {
-                Toast.makeText(getContext(), "Contacto guardado exitosamente", Toast.LENGTH_SHORT).show();
-                dismiss();
+                if (getContext() != null) {
+                    String nombre = etnombrecontactocompleto != null && etnombrecontactocompleto.getText() != null ? etnombrecontactocompleto.getText().toString().trim() : "";
+                    if (nombre.isEmpty()) {
+                        Toast.makeText(getContext(), "Ingresa un nombre para el contacto", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    String tel = ettelefonowhatsapp != null && ettelefonowhatsapp.getText() != null ? ettelefonowhatsapp.getText().toString().trim() : "";
+                    String email = etcorreoelectronico != null && etcorreoelectronico.getText() != null ? etcorreoelectronico.getText().toString().trim() : "";
+                    String notas = etnotasrelacion != null && etnotasrelacion.getText() != null ? etnotasrelacion.getText().toString().trim() : "";
+
+                    DatabaseHelper dbHelper = new DatabaseHelper(getContext());
+                    dbHelper.insertarContacto(new ContactoModel(0, nombre, tel, email, notas));
+
+                    Toast.makeText(getContext(), "Contacto guardado exitosamente", Toast.LENGTH_SHORT).show();
+
+                    if (getParentFragment() instanceof ContactsFragment) {
+                        ((ContactsFragment) getParentFragment()).cargarContactosReales();
+                    }
+
+                    dismiss();
+                }
             });
         }
     }

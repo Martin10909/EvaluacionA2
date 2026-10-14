@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -11,15 +12,18 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
 
+import java.util.List;
 import java.util.Locale;
 
 public class PurchasesFragment extends Fragment {
@@ -43,6 +47,8 @@ public class PurchasesFragment extends Fragment {
     private FloatingActionButton fabagregarcompra;
 
     private DatabaseHelper dbHelper;
+    private CompraAdapter compraAdapter;
+    private boolean mostrandoRealizadas = true;
 
     public PurchasesFragment() {
         // Constructor público vacío requerido
@@ -56,11 +62,11 @@ public class PurchasesFragment extends Fragment {
 
         if (getContext() != null) {
             dbHelper = new DatabaseHelper(getContext());
-            actualizarResumen();
+            configurarRecyclerView();
+            actualizarResumenYLista();
         }
 
         configurarListeners();
-
         return view;
     }
 
@@ -83,22 +89,46 @@ public class PurchasesFragment extends Fragment {
         fabagregarcompra = view.findViewById(R.id.fabagregarcompra);
     }
 
-    private void configurarListeners() {
-        if (fabagregarcompra != null) {
-            fabagregarcompra.setOnClickListener(v -> {
-                if (dbHelper != null) {
-                    dbHelper.insertarCompra("Compra de prueba", 150.00, "2023-10-25", true);
-                    actualizarResumen();
-                    Toast.makeText(getContext(), "Compra agregada exitosamente", Toast.LENGTH_SHORT).show();
+    private void configurarRecyclerView() {
+        if (rvlistacompras != null && getContext() != null) {
+            rvlistacompras.setLayoutManager(new LinearLayoutManager(getContext()));
+            List<CompraModel> compras = dbHelper.obtenerComprasPorEstado(mostrandoRealizadas);
+            compraAdapter = new CompraAdapter(compras, compra -> {
+                if (!compra.isEsRealizada()) {
+                    dbHelper.insertarCompra(new CompraModel(compra.getId(), compra.getTitulo(), compra.getMonto(), "Hoy", true, compra.getContactoId(), compra.getCategoria()));
+                    Toast.makeText(getContext(), "Compra marcada como realizada", Toast.LENGTH_SHORT).show();
+                    actualizarResumenYLista();
                 }
             });
+            rvlistacompras.setAdapter(compraAdapter);
+        }
+    }
+
+    public void actualizarResumenYLista() {
+        if (dbHelper != null) {
+            double total = dbHelper.obtenerTotalCompras();
+            if (tvmontoresumencompras != null) {
+                tvmontoresumencompras.setText(String.format(Locale.getDefault(), "$%.2f", total));
+            }
+
+            if (compraAdapter != null) {
+                List<CompraModel> comprasFiltradas = dbHelper.obtenerComprasPorEstado(mostrandoRealizadas);
+                compraAdapter.actualizarLista(comprasFiltradas);
+            }
+        }
+    }
+
+    private void configurarListeners() {
+        if (fabagregarcompra != null) {
+            fabagregarcompra.setOnClickListener(v -> mostrarDialogoNuevaCompra());
         }
 
         if (pestanascompras != null) {
             pestanascompras.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
                 @Override
                 public void onTabSelected(TabLayout.Tab tab) {
-                    // Cambiar entre pestañas de compras realizadas y agendadas
+                    mostrandoRealizadas = tab.getPosition() == 0;
+                    actualizarResumenYLista();
                 }
 
                 @Override
@@ -110,11 +140,49 @@ public class PurchasesFragment extends Fragment {
         }
     }
 
-    private void actualizarResumen() {
-        if (dbHelper != null && tvmontoresumencompras != null) {
-            double total = dbHelper.obtenerTotalCompras();
-            tvmontoresumencompras.setText(String.format(Locale.getDefault(), "$%.2f", total));
-        }
+    private void mostrarDialogoNuevaCompra() {
+        if (getContext() == null) return;
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle(mostrandoRealizadas ? "Nueva Compra Realizada" : "Agendar Compra Futura");
+
+        LinearLayout layout = new LinearLayout(getContext());
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(32, 16, 32, 16);
+
+        final EditText etTitulo = new EditText(getContext());
+        etTitulo.setHint("Título de la compra (ej. Supermercado)");
+        layout.addView(etTitulo);
+
+        final EditText etMonto = new EditText(getContext());
+        etMonto.setHint("Monto estimado ($)");
+        etMonto.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        layout.addView(etMonto);
+
+        builder.setView(layout);
+
+        builder.setPositiveButton("Guardar", (dialog, which) -> {
+            String titulo = etTitulo.getText().toString().trim();
+            String montoStr = etMonto.getText().toString().trim();
+            double monto = 0;
+            try {
+                monto = Double.parseDouble(montoStr);
+            } catch (Exception ignored) {}
+
+            if (!titulo.isEmpty()) {
+                dbHelper.insertarCompra(new CompraModel(0, titulo, monto, "Hoy", mostrandoRealizadas, null, "Compras"));
+                actualizarResumenYLista();
+                Toast.makeText(getContext(), "Compra registrada", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        builder.setNegativeButton("Cancelar", null);
+        builder.show();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        actualizarResumenYLista();
     }
 
     // Getters

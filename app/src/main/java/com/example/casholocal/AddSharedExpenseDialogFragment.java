@@ -24,6 +24,9 @@ import androidx.fragment.app.DialogFragment;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AddSharedExpenseDialogFragment extends DialogFragment {
 
     // 28 Componentes de la Paleta
@@ -135,8 +138,37 @@ public class AddSharedExpenseDialogFragment extends DialogFragment {
 
         if (btnguardargastocompartido != null) {
             btnguardargastocompartido.setOnClickListener(v -> {
-                Toast.makeText(getContext(), "Gasto compartido registrado exitosamente", Toast.LENGTH_SHORT).show();
-                dismiss();
+                if (getContext() != null) {
+                    String concepto = etconceptoservicio != null && etconceptoservicio.getText() != null ? etconceptoservicio.getText().toString().trim() : "Gasto Compartido";
+                    String montoStr = etmontototaldividir != null && etmontototaldividir.getText() != null ? etmontototaldividir.getText().toString().trim() : "0";
+                    double montoTotal = 0;
+                    try {
+                        montoTotal = Double.parseDouble(montoStr);
+                    } catch (Exception ignored) {}
+
+                    String pagador = sppagador != null && sppagador.getSelectedItem() != null ? sppagador.getSelectedItem().toString() : "Yo (Usuario)";
+
+                    List<String> items = new ArrayList<>();
+                    items.add(concepto.isEmpty() ? "Servicio / Producto" : concepto);
+
+                    List<String> participantes = new ArrayList<>();
+                    if (chkcontacto1 != null && chkcontacto1.isChecked()) {
+                        participantes.add("Carlos Mendoza");
+                    } else {
+                        participantes.add("Juan Pérez");
+                    }
+
+                    DatabaseHelper dbHelper = new DatabaseHelper(getContext());
+                    dbHelper.registrarGastoCompartido(concepto.isEmpty() ? "Gasto Grupal" : concepto, montoTotal, "equitativa", pagador, "Hoy", items, participantes, null);
+
+                    Toast.makeText(getContext(), "Gasto compartido registrado exitosamente", Toast.LENGTH_SHORT).show();
+
+                    if (getParentFragment() instanceof SharedFragment) {
+                        ((SharedFragment) getParentFragment()).cargarDatosReales();
+                    }
+
+                    dismiss();
+                }
             });
         }
     }
