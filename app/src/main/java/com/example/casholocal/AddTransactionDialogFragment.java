@@ -1,5 +1,6 @@
 package com.example.casholocal;
 
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -27,7 +28,9 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class AddTransactionDialogFragment extends DialogFragment {
 
@@ -61,6 +64,7 @@ public class AddTransactionDialogFragment extends DialogFragment {
 
     private DatabaseHelper dbHelper;
     private List<CuentaModel> listaCuentas = new ArrayList<>();
+    private String fechaSeleccionada = "Hoy";
 
     public AddTransactionDialogFragment() {
         // Constructor público vacío requerido
@@ -124,7 +128,7 @@ public class AddTransactionDialogFragment extends DialogFragment {
             listaCuentas = dbHelper.obtenerCuentas();
             List<String> nombresCuentas = new ArrayList<>();
             for (CuentaModel c : listaCuentas) {
-                nombresCuentas.add(c.getNombre());
+                nombresCuentas.add(c.getNombre() + " (" + c.getTipo() + ")");
             }
             if (nombresCuentas.isEmpty()) {
                 nombresCuentas.add("Cuenta Principal");
@@ -136,6 +140,25 @@ public class AddTransactionDialogFragment extends DialogFragment {
     }
 
     private void configurarListeners() {
+        if (rgtipomovimiento != null) {
+            rgtipomovimiento.setOnCheckedChangeListener((group, checkedId) -> {
+                if (checkedId == R.id.rbingreso) {
+                    if (etcategoria != null && (etcategoria.getText() == null || etcategoria.getText().toString().isEmpty())) {
+                        etcategoria.setHint("Ej. Sueldo, Venta, Regalo");
+                    }
+                } else {
+                    if (etcategoria != null && (etcategoria.getText() == null || etcategoria.getText().toString().isEmpty())) {
+                        etcategoria.setHint("Ej. Alimentación, Transporte, Salud");
+                    }
+                }
+            });
+        }
+
+        if (etnombrelugar != null) {
+            etnombrelugar.setFocusable(false);
+            etnombrelugar.setOnClickListener(v -> mostrarSelectorFecha());
+        }
+
         if (btncapturargps != null) {
             btncapturargps.setOnClickListener(v -> {
                 if (getActivity() != null) {
@@ -152,50 +175,69 @@ public class AddTransactionDialogFragment extends DialogFragment {
         if (btnguardarmovimiento != null) {
             btnguardarmovimiento.setOnClickListener(v -> {
                 v.setEnabled(false);
-                String montoStr = etmonto != null && etmonto.getText() != null ? etmonto.getText().toString().trim() : "";
-                if (montoStr.isEmpty()) {
-                    Toast.makeText(getContext(), "Por favor ingresa un monto válido", Toast.LENGTH_SHORT).show();
-                    v.setEnabled(true);
-                    return;
-                }
-
-                double monto = 0;
-                try {
-                    monto = Double.parseDouble(montoStr);
-                } catch (Exception e) {
-                    Toast.makeText(getContext(), "Monto inválido", Toast.LENGTH_SHORT).show();
-                    v.setEnabled(true);
-                    return;
-                }
-
-                boolean esIngreso = rbingreso != null && rbingreso.isChecked();
-                String tipo = esIngreso ? "ingreso" : "egreso";
-                String categoria = etcategoria != null && etcategoria.getText() != null && !etcategoria.getText().toString().trim().isEmpty() ? etcategoria.getText().toString().trim() : "General";
-                String descripcion = etdescripcionnota != null && etdescripcionnota.getText() != null ? etdescripcionnota.getText().toString().trim() : "Movimiento";
-
-                long cuentaId = 1;
-                if (spcuentaasociada != null && !listaCuentas.isEmpty()) {
-                    int pos = spcuentaasociada.getSelectedItemPosition();
-                    if (pos >= 0 && pos < listaCuentas.size()) {
-                        cuentaId = listaCuentas.get(pos).getId();
-                    }
-                }
-
-                if (dbHelper != null) {
-                    dbHelper.insertarMovimiento(new MovimientoModel(0, cuentaId, tipo, monto, descripcion, "Hoy", -33.4372, -70.6506, categoria));
-                    Toast.makeText(getContext(), "Movimiento registrado", Toast.LENGTH_SHORT).show();
-
-                    if (getParentFragment() instanceof HomeFragment) {
-                        ((HomeFragment) getParentFragment()).cargarDatosDesdeBaseDeDatos();
-                    } else if (getActivity() != null) {
-                        Fragment activeFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.contenedorfragmento);
-                        if (activeFragment instanceof HomeFragment) {
-                            ((HomeFragment) activeFragment).cargarDatosDesdeBaseDeDatos();
-                        }
-                    }
-                    dismiss();
-                }
+                guardarMovimiento();
             });
+        }
+    }
+
+    private void mostrarSelectorFecha() {
+        if (getContext() == null) return;
+        Calendar calendar = Calendar.getInstance();
+        DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(), (view, year, month, dayOfMonth) -> {
+            fechaSeleccionada = String.format(Locale.getDefault(), "%02d/%02d/%d", dayOfMonth, month + 1, year);
+            if (etnombrelugar != null) {
+                etnombrelugar.setText(fechaSeleccionada);
+            }
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+        datePickerDialog.show();
+    }
+
+    private void guardarMovimiento() {
+        String montoStr = etmonto != null && etmonto.getText() != null ? etmonto.getText().toString().trim() : "";
+        if (montoStr.isEmpty()) {
+            Toast.makeText(getContext(), "Por favor ingresa un monto válido", Toast.LENGTH_SHORT).show();
+            if (btnguardarmovimiento != null) btnguardarmovimiento.setEnabled(true);
+            return;
+        }
+
+        double monto = 0;
+        try {
+            monto = Double.parseDouble(montoStr);
+        } catch (Exception e) {
+            Toast.makeText(getContext(), "Monto inválido", Toast.LENGTH_SHORT).show();
+            if (btnguardarmovimiento != null) btnguardarmovimiento.setEnabled(true);
+            return;
+        }
+
+        boolean esIngreso = rbingreso != null && rbingreso.isChecked();
+        String tipo = esIngreso ? "ingreso" : "egreso";
+        String categoria = etcategoria != null && etcategoria.getText() != null && !etcategoria.getText().toString().trim().isEmpty() ?
+                etcategoria.getText().toString().trim() : (esIngreso ? "Sueldo" : "Alimentación");
+
+        String descripcion = etdescripcionnota != null && etdescripcionnota.getText() != null && !etdescripcionnota.getText().toString().trim().isEmpty() ?
+                etdescripcionnota.getText().toString().trim() : (esIngreso ? "Ingreso de dinero" : "Gasto registrado");
+
+        long cuentaId = 1;
+        if (spcuentaasociada != null && !listaCuentas.isEmpty()) {
+            int pos = spcuentaasociada.getSelectedItemPosition();
+            if (pos >= 0 && pos < listaCuentas.size()) {
+                cuentaId = listaCuentas.get(pos).getId();
+            }
+        }
+
+        if (dbHelper != null) {
+            dbHelper.insertarMovimiento(new MovimientoModel(0, cuentaId, tipo, monto, descripcion, fechaSeleccionada, -33.4372, -70.6506, categoria));
+            Toast.makeText(getContext(), (esIngreso ? "Ingreso" : "Gasto") + " guardado con éxito", Toast.LENGTH_SHORT).show();
+
+            if (getParentFragment() instanceof HomeFragment) {
+                ((HomeFragment) getParentFragment()).cargarDatosDesdeBaseDeDatos();
+            } else if (getActivity() != null) {
+                Fragment activeFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.contenedorfragmento);
+                if (activeFragment instanceof HomeFragment) {
+                    ((HomeFragment) activeFragment).cargarDatosDesdeBaseDeDatos();
+                }
+            }
+            dismiss();
         }
     }
 

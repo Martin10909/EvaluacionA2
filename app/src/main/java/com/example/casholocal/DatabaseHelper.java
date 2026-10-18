@@ -12,7 +12,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "casholocal.db";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     // Tabla Cuentas
     public static final String TABLA_CUENTAS = "cuentas";
@@ -20,6 +20,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_CUENTA_NOMBRE = "nombre";
     public static final String COL_CUENTA_TIPO = "tipo";
     public static final String COL_CUENTA_SALDO_INICIAL = "saldo_inicial";
+    public static final String COL_CUENTA_MONEDA = "moneda";
+    public static final String COL_CUENTA_DESCRIPCION = "descripcion";
+    public static final String COL_CUENTA_FECHA = "fecha_creacion";
 
     // Tabla Movimientos
     public static final String TABLA_MOVIMIENTOS = "movimientos";
@@ -93,7 +96,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_CUENTA_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COL_CUENTA_NOMBRE + " TEXT, " +
                 COL_CUENTA_TIPO + " TEXT, " +
-                COL_CUENTA_SALDO_INICIAL + " REAL)");
+                COL_CUENTA_SALDO_INICIAL + " REAL, " +
+                COL_CUENTA_MONEDA + " TEXT, " +
+                COL_CUENTA_DESCRIPCION + " TEXT, " +
+                COL_CUENTA_FECHA + " TEXT)");
 
         // Movimientos
         db.execSQL("CREATE TABLE " + TABLA_MOVIMIENTOS + " (" +
@@ -155,8 +161,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "FOREIGN KEY(" + COL_DEUDA_GASTO_ID + ") REFERENCES " + TABLA_GASTOS_COMPARTIDOS + "(" + COL_GASTO_ID + ") ON DELETE CASCADE)");
 
         // Insertar Cuentas por defecto
-        db.execSQL("INSERT INTO " + TABLA_CUENTAS + " (" + COL_CUENTA_NOMBRE + ", " + COL_CUENTA_TIPO + ", " + COL_CUENTA_SALDO_INICIAL + ") VALUES ('Cuenta Principal', 'Bancaria', 1000.00)");
-        db.execSQL("INSERT INTO " + TABLA_CUENTAS + " (" + COL_CUENTA_NOMBRE + ", " + COL_CUENTA_TIPO + ", " + COL_CUENTA_SALDO_INICIAL + ") VALUES ('Efectivo', 'Billetera', 250.00)");
+        db.execSQL("INSERT INTO " + TABLA_CUENTAS + " (" + COL_CUENTA_NOMBRE + ", " + COL_CUENTA_TIPO + ", " + COL_CUENTA_SALDO_INICIAL + ", " + COL_CUENTA_MONEDA + ", " + COL_CUENTA_DESCRIPCION + ", " + COL_CUENTA_FECHA + ") VALUES ('Cuenta Principal', 'Bancaria', 100000.0, 'CLP', 'Cuenta Corriente', '01/10/2023')");
+        db.execSQL("INSERT INTO " + TABLA_CUENTAS + " (" + COL_CUENTA_NOMBRE + ", " + COL_CUENTA_TIPO + ", " + COL_CUENTA_SALDO_INICIAL + ", " + COL_CUENTA_MONEDA + ", " + COL_CUENTA_DESCRIPCION + ", " + COL_CUENTA_FECHA + ") VALUES ('Efectivo', 'Billetera', 25000.0, 'CLP', 'Billetera diario', '01/10/2023')");
 
         // Insertar Contactos chilenos de prueba
         insertarContactosDemoChilenos(db);
@@ -189,6 +195,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COL_CUENTA_NOMBRE, cuenta.getNombre());
         values.put(COL_CUENTA_TIPO, cuenta.getTipo());
         values.put(COL_CUENTA_SALDO_INICIAL, cuenta.getSaldoInicial());
+        values.put(COL_CUENTA_MONEDA, cuenta.getMoneda());
+        values.put(COL_CUENTA_DESCRIPCION, cuenta.getDescripcion());
+        values.put(COL_CUENTA_FECHA, cuenta.getFechaCreacion());
         return db.insert(TABLA_CUENTAS, null, values);
     }
 
@@ -202,7 +211,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String nombre = cursor.getString(1);
                 String tipo = cursor.getString(2);
                 double saldoInicial = cursor.getDouble(3);
-                lista.add(new CuentaModel(id, nombre, tipo, saldoInicial));
+                String moneda = cursor.getColumnCount() > 4 && !cursor.isNull(4) ? cursor.getString(4) : "CLP";
+                String desc = cursor.getColumnCount() > 5 && !cursor.isNull(5) ? cursor.getString(5) : "Sin descripción";
+                String fecha = cursor.getColumnCount() > 6 && !cursor.isNull(6) ? cursor.getString(6) : "Hoy";
+
+                lista.add(new CuentaModel(id, nombre, tipo, saldoInicial, moneda, desc, fecha));
             } while (cursor.moveToNext());
         }
         cursor.close();

@@ -7,12 +7,14 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,7 +31,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class HomeFragment extends Fragment {
 
@@ -271,22 +275,85 @@ public class HomeFragment extends Fragment {
     }
 
     private void mostrarDialogoNuevaCuenta() {
-        if (getContext() == null) return;
+        if (getContext() == null || dbHelper == null) return;
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Nueva Cuenta");
+        builder.setTitle("Nueva Cuenta Financiera");
 
+        LinearLayout layout = new LinearLayout(getContext());
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(32, 16, 32, 16);
+
+        // 1. Nombre de la cuenta (Obligatorio)
         final EditText etNombre = new EditText(getContext());
-        etNombre.setHint("Nombre de la cuenta (ej. Ahorro)");
-        builder.setView(etNombre);
+        etNombre.setHint("Nombre de la cuenta (Obligatorio)");
+        layout.addView(etNombre);
+
+        // 2. Tipo de cuenta (Obligatorio)
+        TextView tvTipoLabel = new TextView(getContext());
+        tvTipoLabel.setText("Tipo de cuenta (Obligatorio):");
+        tvTipoLabel.setPadding(0, 12, 0, 4);
+        layout.addView(tvTipoLabel);
+
+        final Spinner spTipo = new Spinner(getContext());
+        ArrayAdapter<String> adapterTipos = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, new String[]{"Bancaria", "Billetera / Efectivo", "Tarjeta de Crédito", "Ahorro"});
+        adapterTipos.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spTipo.setAdapter(adapterTipos);
+        layout.addView(spTipo);
+
+        // 3. Saldo Inicial (Obligatorio)
+        final EditText etSaldo = new EditText(getContext());
+        etSaldo.setHint("Saldo inicial ($ CLP) (Obligatorio)");
+        etSaldo.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        layout.addView(etSaldo);
+
+        // 4. Moneda (Opcional)
+        TextView tvMonedaLabel = new TextView(getContext());
+        tvMonedaLabel.setText("Moneda (Opcional):");
+        tvMonedaLabel.setPadding(0, 12, 0, 4);
+        layout.addView(tvMonedaLabel);
+
+        final Spinner spMoneda = new Spinner(getContext());
+        ArrayAdapter<String> adapterMonedas = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, new String[]{"CLP ($)", "USD ($)", "EUR (€)"});
+        adapterMonedas.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spMoneda.setAdapter(adapterMonedas);
+        layout.addView(spMoneda);
+
+        // 5. Descripción (Opcional)
+        final EditText etDesc = new EditText(getContext());
+        etDesc.setHint("Descripción / Nota (Opcional)");
+        layout.addView(etDesc);
+
+        builder.setView(layout);
 
         builder.setPositiveButton("Guardar", (dialog, which) -> {
             String nombre = etNombre.getText().toString().trim();
-            if (!nombre.isEmpty()) {
-                dbHelper.insertarCuenta(new CuentaModel(0, nombre, "Personal", 0.00));
+            String saldoStr = etSaldo.getText().toString().trim();
+            String tipo = spTipo.getSelectedItem() != null ? spTipo.getSelectedItem().toString() : "Bancaria";
+            String moneda = spMoneda.getSelectedItem() != null ? spMoneda.getSelectedItem().toString() : "CLP ($)";
+            String desc = etDesc.getText().toString().trim();
+
+            if (desc.isEmpty()) {
+                desc = "Cuenta registrada";
+            }
+
+            double saldo = 0;
+            try {
+                saldo = Double.parseDouble(saldoStr);
+            } catch (Exception ignored) {}
+
+            if (!nombre.isEmpty() && !saldoStr.isEmpty()) {
+                Calendar c = Calendar.getInstance();
+                String fechaHoy = String.format(Locale.getDefault(), "%02d/%02d/%d", c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.MONTH) + 1, c.get(Calendar.YEAR));
+
+                // 6. Fecha creación (automática) + 7. ID automático en SQLite PRIMARY KEY
+                dbHelper.insertarCuenta(new CuentaModel(0, nombre, tipo, saldo, moneda, desc, fechaHoy));
                 cargarDatosDesdeBaseDeDatos();
-                Toast.makeText(getContext(), "Cuenta creada", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Cuenta creada exitosamente", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), "Por favor completa los campos obligatorios (Nombre, Tipo y Saldo)", Toast.LENGTH_SHORT).show();
             }
         });
+
         builder.setNegativeButton("Cancelar", null);
         builder.show();
     }
