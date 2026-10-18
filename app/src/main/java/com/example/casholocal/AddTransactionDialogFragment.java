@@ -21,6 +21,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
@@ -150,9 +151,11 @@ public class AddTransactionDialogFragment extends DialogFragment {
 
         if (btnguardarmovimiento != null) {
             btnguardarmovimiento.setOnClickListener(v -> {
+                v.setEnabled(false);
                 String montoStr = etmonto != null && etmonto.getText() != null ? etmonto.getText().toString().trim() : "";
                 if (montoStr.isEmpty()) {
                     Toast.makeText(getContext(), "Por favor ingresa un monto válido", Toast.LENGTH_SHORT).show();
+                    v.setEnabled(true);
                     return;
                 }
 
@@ -161,6 +164,7 @@ public class AddTransactionDialogFragment extends DialogFragment {
                     monto = Double.parseDouble(montoStr);
                 } catch (Exception e) {
                     Toast.makeText(getContext(), "Monto inválido", Toast.LENGTH_SHORT).show();
+                    v.setEnabled(true);
                     return;
                 }
 
@@ -183,6 +187,11 @@ public class AddTransactionDialogFragment extends DialogFragment {
 
                     if (getParentFragment() instanceof HomeFragment) {
                         ((HomeFragment) getParentFragment()).cargarDatosDesdeBaseDeDatos();
+                    } else if (getActivity() != null) {
+                        Fragment activeFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.contenedorfragmento);
+                        if (activeFragment instanceof HomeFragment) {
+                            ((HomeFragment) activeFragment).cargarDatosDesdeBaseDeDatos();
+                        }
                     }
                     dismiss();
                 }

@@ -112,6 +112,30 @@
 
         </LinearLayout>
 
+        <!-- Tabs filter: Pendientes vs Saldadas -->
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/pestanasdeudas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#FFFFFF"
+            app:tabIndicatorColor="#2E7D32"
+            app:tabSelectedTextColor="#2E7D32"
+            app:tabTextColor="#757575">
+
+            <com.google.android.material.tabs.TabItem
+                android:id="@+id/pestanapendientes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pendientes" />
+
+            <com.google.android.material.tabs.TabItem
+                android:id="@+id/pestanasaldadas"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Saldadas" />
+
+        </com.google.android.material.tabs.TabLayout>
+
         <!-- Expenses List -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvgastoscompartidos"

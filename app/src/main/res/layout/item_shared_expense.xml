@@ -50,7 +50,7 @@
                     android:textColor="#212121"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    tools:text="Cena de Cumpleaños" />
+                    tools:text="Compra de supermercado" />
 
                 <TextView
                     android:id="@+id/tvitemmetodo"
@@ -88,7 +88,7 @@
             android:layout_marginTop="4dp"
             android:textColor="#616161"
             android:textSize="12sp"
-            tools:text="Ubicación: Restaurante Central" />
+            tools:text="Ubicación: Supermercado Central" />
 
         <!-- Divider -->
         <View
@@ -128,7 +128,7 @@
                     android:layout_weight="1"
                     android:textColor="#757575"
                     android:textSize="12sp"
-                    tools:text="Juan Pérez" />
+                    tools:text="Pablo" />
 
                 <TextView
                     android:layout_width="wrap_content"

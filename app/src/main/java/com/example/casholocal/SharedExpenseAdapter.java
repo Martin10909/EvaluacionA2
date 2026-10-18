@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
@@ -17,6 +18,7 @@ public class SharedExpenseAdapter extends RecyclerView.Adapter<SharedExpenseAdap
 
     public interface OnDeudaActionListener {
         void onMarcarPagada(DeudaModel deuda);
+        void onEliminarDeuda(DeudaModel deuda);
     }
 
     private List<DeudaModel> listaDeudas;
@@ -38,15 +40,15 @@ public class SharedExpenseAdapter extends RecyclerView.Adapter<SharedExpenseAdap
     public void onBindViewHolder(@NonNull DeudaViewHolder holder, int position) {
         DeudaModel deuda = listaDeudas.get(position);
         holder.tvitemtitulo.setText(deuda.getConcepto());
-        holder.tvitemmetodo.setText("Contacto: " + deuda.getContactoNombre());
+        holder.tvitemmetodo.setText("Participante: " + deuda.getContactoNombre());
         holder.tvitemmonto.setText(String.format(Locale.getDefault(), "$%.2f", deuda.getMonto()));
-        holder.tvitemnotas.setText("Estado: " + (deuda.isEsPagada() ? "Pagada / Saldada" : "Pendiente"));
+        holder.tvitemnotas.setText("Estado: " + (deuda.isEsPagada() ? "Saldada" : "Pendiente de cobro/pago"));
 
         if (deuda.isEsPagada()) {
             holder.btncompartircuenta.setText("Saldada");
             holder.btncompartircuenta.setEnabled(false);
         } else {
-            holder.btncompartircuenta.setText("Marcar Pagada");
+            holder.btncompartircuenta.setText("Saldar Cuenta");
             holder.btncompartircuenta.setEnabled(true);
             holder.btncompartircuenta.setOnClickListener(v -> {
                 if (listener != null) {
@@ -54,6 +56,25 @@ public class SharedExpenseAdapter extends RecyclerView.Adapter<SharedExpenseAdap
                 }
             });
         }
+
+        // Al hacer clic en la tarjeta, ver el detalle de los participantes y opción de eliminar
+        holder.itemView.setOnClickListener(v -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(holder.itemView.getContext());
+            builder.setTitle("Detalle de Gasto Compartido");
+            builder.setMessage("Concepto: " + deuda.getConcepto() + "\n" +
+                    "Participante: " + deuda.getContactoNombre() + "\n" +
+                    "Monto Cuota: " + String.format(Locale.getDefault(), "$%.2f", deuda.getMonto()) + "\n" +
+                    "Tipo: " + ("me_deben".equals(deuda.getTipoDeuda()) ? "Por Cobrar" : "Por Pagar") + "\n" +
+                    "Estado: " + (deuda.isEsPagada() ? "Saldada" : "Pendiente"));
+
+            builder.setPositiveButton("Aceptar", null);
+            builder.setNegativeButton("Eliminar", (dialog, which) -> {
+                if (listener != null) {
+                    listener.onEliminarDeuda(deuda);
+                }
+            });
+            builder.show();
+        });
     }
 
     @Override

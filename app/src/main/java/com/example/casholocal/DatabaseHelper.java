@@ -12,7 +12,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "casholocal.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     // Tabla Cuentas
     public static final String TABLA_CUENTAS = "cuentas";
@@ -157,6 +157,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Insertar Cuentas por defecto
         db.execSQL("INSERT INTO " + TABLA_CUENTAS + " (" + COL_CUENTA_NOMBRE + ", " + COL_CUENTA_TIPO + ", " + COL_CUENTA_SALDO_INICIAL + ") VALUES ('Cuenta Principal', 'Bancaria', 1000.00)");
         db.execSQL("INSERT INTO " + TABLA_CUENTAS + " (" + COL_CUENTA_NOMBRE + ", " + COL_CUENTA_TIPO + ", " + COL_CUENTA_SALDO_INICIAL + ") VALUES ('Efectivo', 'Billetera', 250.00)");
+
+        // Insertar Contactos chilenos de prueba
+        insertarContactosDemoChilenos(db);
+    }
+
+    private void insertarContactosDemoChilenos(SQLiteDatabase db) {
+        db.execSQL("INSERT INTO " + TABLA_CONTACTOS + " (" + COL_CONTACTO_NOMBRE + ", " + COL_CONTACTO_TELEFONO + ", " + COL_CONTACTO_EMAIL + ", " + COL_CONTACTO_NOTAS + ") VALUES ('Pablo', '+56 9 8765 4321', 'pablo@email.cl', 'Amigo')");
+        db.execSQL("INSERT INTO " + TABLA_CONTACTOS + " (" + COL_CONTACTO_NOMBRE + ", " + COL_CONTACTO_TELEFONO + ", " + COL_CONTACTO_EMAIL + ", " + COL_CONTACTO_NOTAS + ") VALUES ('Miguel', '+56 9 7654 3210', 'miguel@email.cl', 'Compañero')");
+        db.execSQL("INSERT INTO " + TABLA_CONTACTOS + " (" + COL_CONTACTO_NOMBRE + ", " + COL_CONTACTO_TELEFONO + ", " + COL_CONTACTO_EMAIL + ", " + COL_CONTACTO_NOTAS + ") VALUES ('Karina', '+56 9 6543 2109', 'karina@email.cl', 'Familia')");
+        db.execSQL("INSERT INTO " + TABLA_CONTACTOS + " (" + COL_CONTACTO_NOMBRE + ", " + COL_CONTACTO_TELEFONO + ", " + COL_CONTACTO_EMAIL + ", " + COL_CONTACTO_NOTAS + ") VALUES ('Catalina', '+56 9 5432 1098', 'catalina@email.cl', 'Trabajo')");
+        db.execSQL("INSERT INTO " + TABLA_CONTACTOS + " (" + COL_CONTACTO_NOMBRE + ", " + COL_CONTACTO_TELEFONO + ", " + COL_CONTACTO_EMAIL + ", " + COL_CONTACTO_NOTAS + ") VALUES ('Osvaldo', '+56 9 4321 0987', 'osvaldo@email.cl', 'Vecino')");
     }
 
     @Override
@@ -426,11 +437,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public List<DeudaModel> obtenerListaDeudas() {
+        return obtenerListaDeudasPorEstado(false);
+    }
+
+    public List<DeudaModel> obtenerListaDeudasPorEstado(boolean esPagada) {
         List<DeudaModel> lista = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT d." + COL_DEUDA_ID + ", g." + COL_GASTO_CONCEPTO + ", d." + COL_DEUDA_CONTACTO + ", d." + COL_DEUDA_MONTO + ", d." + COL_DEUDA_ES_PAGADA + ", d." + COL_DEUDA_TIPO + ", g." + COL_GASTO_FECHA +
                 " FROM " + TABLA_DEUDAS + " d LEFT JOIN " + TABLA_GASTOS_COMPARTIDOS + " g ON d." + COL_DEUDA_GASTO_ID + " = g." + COL_GASTO_ID +
-                " ORDER BY d." + COL_DEUDA_ID + " DESC", null);
+                " WHERE d." + COL_DEUDA_ES_PAGADA + " = ?" +
+                " ORDER BY d." + COL_DEUDA_ID + " DESC", new String[]{esPagada ? "1" : "0"});
 
         if (cursor.moveToFirst()) {
             do {
@@ -438,11 +454,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String concepto = cursor.getString(1);
                 String contacto = cursor.getString(2);
                 double monto = cursor.getDouble(3);
-                boolean esPagada = cursor.getInt(4) == 1;
+                boolean pagada = cursor.getInt(4) == 1;
                 String tipo = cursor.getString(5);
                 String fecha = cursor.getString(6);
 
-                lista.add(new DeudaModel(id, concepto != null ? concepto : "Gasto Compartido", contacto, monto, esPagada, tipo, fecha != null ? fecha : "Reciente"));
+                lista.add(new DeudaModel(id, concepto != null ? concepto : "Gasto Compartido", contacto, monto, pagada, tipo, fecha != null ? fecha : "Reciente"));
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -454,5 +470,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(COL_DEUDA_ES_PAGADA, 1);
         db.update(TABLA_DEUDAS, values, COL_DEUDA_ID + " = ?", new String[]{String.valueOf(idDeuda)});
+    }
+
+    public void eliminarDeuda(long idDeuda) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLA_DEUDAS, COL_DEUDA_ID + " = ?", new String[]{String.valueOf(idDeuda)});
     }
 }

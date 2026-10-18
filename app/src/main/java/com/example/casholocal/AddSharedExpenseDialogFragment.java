@@ -1,5 +1,6 @@
 package com.example.casholocal;
 
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,12 +21,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class AddSharedExpenseDialogFragment extends DialogFragment {
 
@@ -59,6 +63,11 @@ public class AddSharedExpenseDialogFragment extends DialogFragment {
     private MaterialButton btncancelargastocompartido;
     private MaterialButton btnguardargastocompartido;
 
+    private DatabaseHelper dbHelper;
+    private List<ContactoModel> listaContactosBaseDatos = new ArrayList<>();
+    private List<CheckBox> listaCheckBoxesDinamicos = new ArrayList<>();
+    private String fechaSeleccionada = "Hoy";
+
     public AddSharedExpenseDialogFragment() {
         // Constructor público vacío requerido
     }
@@ -68,7 +77,12 @@ public class AddSharedExpenseDialogFragment extends DialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_add_shared_expense, container, false);
         initViews(view);
-        configurarSpinner();
+
+        if (getContext() != null) {
+            dbHelper = new DatabaseHelper(getContext());
+            cargarPagadoresYContactosReales();
+        }
+
         configurarListeners();
         return view;
     }
@@ -113,16 +127,56 @@ public class AddSharedExpenseDialogFragment extends DialogFragment {
         btnguardargastocompartido = view.findViewById(R.id.btnguardargastocompartido);
     }
 
-    private void configurarSpinner() {
-        if (getContext() != null && sppagador != null) {
-            String[] pagadores = {"Yo (Usuario)", "Carlos Mendoza", "Juan Pérez", "Ana Gómez"};
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, pagadores);
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            sppagador.setAdapter(adapter);
+    private void cargarPagadoresYContactosReales() {
+        if (dbHelper != null && getContext() != null) {
+            listaContactosBaseDatos = dbHelper.obtenerContactos();
+
+            // Cargar Spinner de Pagadores
+            List<String> opcionesPagador = new ArrayList<>();
+            opcionesPagador.add("Yo (Usuario)");
+            for (ContactoModel c : listaContactosBaseDatos) {
+                opcionesPagador.add(c.getNombre());
+            }
+
+            if (sppagador != null) {
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, opcionesPagador);
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                sppagador.setAdapter(adapter);
+            }
+
+            // Cargar lista de contactos participantes (sólo el primero marcado por defecto)
+            if (llseleccionparticipantes != null) {
+                llseleccionparticipantes.removeAllViews();
+                listaCheckBoxesDinamicos.clear();
+
+                if (!listaContactosBaseDatos.isEmpty()) {
+                    for (int i = 0; i < listaContactosBaseDatos.size(); i++) {
+                        ContactoModel contacto = listaContactosBaseDatos.get(i);
+                        CheckBox chk = new CheckBox(getContext());
+                        chk.setText(contacto.getNombre());
+                        chk.setTextColor(0xFF212121);
+                        chk.setChecked(i == 0); // Sólo 1 marcado por defecto
+                        llseleccionparticipantes.addView(chk);
+                        listaCheckBoxesDinamicos.add(chk);
+                    }
+                } else {
+                    if (chkcontacto1 != null) {
+                        chkcontacto1.setText("Pablo");
+                        chkcontacto1.setChecked(true);
+                        llseleccionparticipantes.addView(chkcontacto1);
+                        listaCheckBoxesDinamicos.add(chkcontacto1);
+                    }
+                }
+            }
         }
     }
 
     private void configurarListeners() {
+        if (etnombrelugarcompartido != null) {
+            etnombrelugarcompartido.setFocusable(false);
+            etnombrelugarcompartido.setOnClickListener(v -> mostrarSelectorFecha());
+        }
+
         if (btncapturargpscompartido != null) {
             btncapturargpscompartido.setOnClickListener(v -> {
                 if (getActivity() != null) {
@@ -138,38 +192,77 @@ public class AddSharedExpenseDialogFragment extends DialogFragment {
 
         if (btnguardargastocompartido != null) {
             btnguardargastocompartido.setOnClickListener(v -> {
-                if (getContext() != null) {
-                    String concepto = etconceptoservicio != null && etconceptoservicio.getText() != null ? etconceptoservicio.getText().toString().trim() : "Gasto Compartido";
-                    String montoStr = etmontototaldividir != null && etmontototaldividir.getText() != null ? etmontototaldividir.getText().toString().trim() : "0";
-                    double montoTotal = 0;
-                    try {
-                        montoTotal = Double.parseDouble(montoStr);
-                    } catch (Exception ignored) {}
-
-                    String pagador = sppagador != null && sppagador.getSelectedItem() != null ? sppagador.getSelectedItem().toString() : "Yo (Usuario)";
-
-                    List<String> items = new ArrayList<>();
-                    items.add(concepto.isEmpty() ? "Servicio / Producto" : concepto);
-
-                    List<String> participantes = new ArrayList<>();
-                    if (chkcontacto1 != null && chkcontacto1.isChecked()) {
-                        participantes.add("Carlos Mendoza");
-                    } else {
-                        participantes.add("Juan Pérez");
-                    }
-
-                    DatabaseHelper dbHelper = new DatabaseHelper(getContext());
-                    dbHelper.registrarGastoCompartido(concepto.isEmpty() ? "Gasto Grupal" : concepto, montoTotal, "equitativa", pagador, "Hoy", items, participantes, null);
-
-                    Toast.makeText(getContext(), "Gasto compartido registrado exitosamente", Toast.LENGTH_SHORT).show();
-
-                    if (getParentFragment() instanceof SharedFragment) {
-                        ((SharedFragment) getParentFragment()).cargarDatosReales();
-                    }
-
-                    dismiss();
-                }
+                v.setEnabled(false); // Prevenir doble clic
+                guardarGastoCompartido();
             });
+        }
+    }
+
+    private void mostrarSelectorFecha() {
+        if (getContext() == null) return;
+        Calendar calendar = Calendar.getInstance();
+        DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(), (view, year, month, dayOfMonth) -> {
+            fechaSeleccionada = String.format(Locale.getDefault(), "%02d/%02d/%d", dayOfMonth, month + 1, year);
+            if (etnombrelugarcompartido != null) {
+                etnombrelugarcompartido.setText(fechaSeleccionada);
+            }
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+        datePickerDialog.show();
+    }
+
+    private void guardarGastoCompartido() {
+        if (getContext() == null) return;
+
+        String concepto = etconceptoservicio != null && etconceptoservicio.getText() != null ? etconceptoservicio.getText().toString().trim() : "";
+        if (concepto.isEmpty()) {
+            concepto = "Compra supermercado";
+        }
+
+        String montoStr = etmontototaldividir != null && etmontototaldividir.getText() != null ? etmontototaldividir.getText().toString().trim() : "0";
+        double montoTotal = 0;
+        try {
+            montoTotal = Double.parseDouble(montoStr);
+        } catch (Exception ignored) {}
+
+        if (montoTotal <= 0) {
+            Toast.makeText(getContext(), "Por favor ingresa un monto total válido", Toast.LENGTH_SHORT).show();
+            if (btnguardargastocompartido != null) btnguardargastocompartido.setEnabled(true);
+            return;
+        }
+
+        String pagador = sppagador != null && sppagador.getSelectedItem() != null ? sppagador.getSelectedItem().toString() : "Yo (Usuario)";
+
+        List<String> participantesSeleccionados = new ArrayList<>();
+        for (CheckBox chk : listaCheckBoxesDinamicos) {
+            if (chk.isChecked()) {
+                participantesSeleccionados.add(chk.getText().toString());
+            }
+        }
+
+        if (participantesSeleccionados.isEmpty()) {
+            participantesSeleccionados.add("Pablo");
+        }
+
+        List<String> items = new ArrayList<>();
+        items.add(concepto);
+
+        if (dbHelper != null) {
+            dbHelper.registrarGastoCompartido(concepto, montoTotal, "equitativa", pagador, fechaSeleccionada, items, participantesSeleccionados, null);
+            Toast.makeText(getContext(), "Gasto compartido registrado", Toast.LENGTH_SHORT).show();
+
+            // Refrescar fragmento visible inmediatamente
+            if (getParentFragment() instanceof SharedFragment) {
+                ((SharedFragment) getParentFragment()).cargarDatosReales();
+            } else if (getActivity() != null) {
+                Fragment activeFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.contenedorfragmento);
+                if (activeFragment instanceof SharedFragment) {
+                    ((SharedFragment) activeFragment).cargarDatosReales();
+                } else if (activeFragment instanceof HomeFragment) {
+                    ((HomeFragment) activeFragment).cargarDatosDesdeBaseDeDatos();
+                }
+            }
+
+            dismiss();
         }
     }
 
