@@ -30,7 +30,6 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.List;
-import java.util.Locale;
 
 public class HomeFragment extends Fragment {
 
@@ -88,7 +87,7 @@ public class HomeFragment extends Fragment {
     private MovimientoAdapter movimientoAdapter;
 
     public HomeFragment() {
-        // Required empty public constructor
+        // Constructor público vacío requerido
     }
 
     @Nullable
@@ -180,11 +179,11 @@ public class HomeFragment extends Fragment {
             double meDebenTotal = dbHelper.obtenerTotalMeDeben();
 
             if (tvbalancetotal != null) {
-                tvbalancetotal.setText(String.format(Locale.getDefault(), "$%.2f", saldoTotal));
+                tvbalancetotal.setText(FormatoMoneda.aPesoChileno(saldoTotal));
             }
 
             if (tvmedeben != null) {
-                tvmedeben.setText(String.format(Locale.getDefault(), "$%.2f", meDebenTotal));
+                tvmedeben.setText(FormatoMoneda.aPesoChileno(meDebenTotal));
             }
 
             if (cuentaAdapter != null) {

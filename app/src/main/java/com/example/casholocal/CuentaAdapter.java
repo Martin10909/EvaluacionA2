@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
-import java.util.Locale;
 
 public class CuentaAdapter extends RecyclerView.Adapter<CuentaAdapter.CuentaViewHolder> {
 
@@ -31,7 +30,7 @@ public class CuentaAdapter extends RecyclerView.Adapter<CuentaAdapter.CuentaView
         CuentaModel cuenta = listaCuentas.get(position);
         holder.tvnombrecuenta.setText(cuenta.getNombre());
         holder.tvtipocuenta.setText(cuenta.getTipo());
-        holder.tvsaldoestadocuenta.setText(String.format(Locale.getDefault(), "$%.2f", cuenta.getSaldoInicial()));
+        holder.tvsaldoestadocuenta.setText(FormatoMoneda.aPesoChileno(cuenta.getSaldoInicial()));
     }
 
     @Override

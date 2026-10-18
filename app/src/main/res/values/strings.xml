@@ -6,7 +6,7 @@
     <string name="notifications">Notificaciones</string>
     <string name="user_profile">Perfil de Usuario</string>
     <string name="balance_title">Balance Total</string>
-    <string name="default_amount">$0.00</string>
+    <string name="default_amount">$0</string>
     <string name="owed_title">Me deben</string>
     <string name="quick_income">Ingreso</string>
     <string name="quick_expense">Gasto</string>
@@ -53,7 +53,7 @@
     <string name="dialog_subtitle">Ingreso o egreso financiero</string>
     <string name="rb_expense_label">Gasto / Egreso</string>
     <string name="rb_income_label">Ingreso</string>
-    <string name="amount_hint">Monto ($)</string>
+    <string name="amount_hint">Monto ($ CLP)</string>
     <string name="associated_account_label">Cuenta Asociada</string>
     <string name="category_hint">Categoría</string>
     <string name="description_hint">Descripción / Nota</string>
@@ -72,8 +72,8 @@
     <string name="chip_expenses">Gastos</string>
     <string name="chip_incomes">Ingresos</string>
     <string name="marker_title_default">Compra en Supermercado</string>
-    <string name="marker_sub_default">Gasto de $45.50 - Cuenta Principal</string>
-    <string name="marker_amount_default">$45.50</string>
+    <string name="marker_sub_default">Gasto de $45.500 - Cuenta Principal</string>
+    <string name="marker_amount_default">$45.500</string>
     <string name="share_marker_btn">Compartir</string>
     <string name="back_map_desc">Volver al mapa</string>
 
@@ -81,7 +81,7 @@
     <string name="shared_dialog_title">Dividir Gasto Grupal</string>
     <string name="shared_dialog_subtitle">Asignación equitativa o personalizada</string>
     <string name="concept_hint">Concepto o Servicio</string>
-    <string name="total_amount_hint">Monto Total a Dividir ($)</string>
+    <string name="total_amount_hint">Monto Total a Dividir ($ CLP)</string>
     <string name="who_paid_label">¿Quién pagó el monto total?</string>
     <string name="select_contacts_label">Selecciona Contactos Participantes:</string>
     <string name="sample_contact_1">Contacto Ejemplo</string>

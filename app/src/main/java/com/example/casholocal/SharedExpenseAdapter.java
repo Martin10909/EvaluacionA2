@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.List;
-import java.util.Locale;
 
 public class SharedExpenseAdapter extends RecyclerView.Adapter<SharedExpenseAdapter.DeudaViewHolder> {
 
@@ -41,7 +40,7 @@ public class SharedExpenseAdapter extends RecyclerView.Adapter<SharedExpenseAdap
         DeudaModel deuda = listaDeudas.get(position);
         holder.tvitemtitulo.setText(deuda.getConcepto());
         holder.tvitemmetodo.setText("Participante: " + deuda.getContactoNombre());
-        holder.tvitemmonto.setText(String.format(Locale.getDefault(), "$%.2f", deuda.getMonto()));
+        holder.tvitemmonto.setText(FormatoMoneda.aPesoChileno(deuda.getMonto()));
         holder.tvitemnotas.setText("Estado: " + (deuda.isEsPagada() ? "Saldada" : "Pendiente de cobro/pago"));
 
         if (deuda.isEsPagada()) {
@@ -63,7 +62,7 @@ public class SharedExpenseAdapter extends RecyclerView.Adapter<SharedExpenseAdap
             builder.setTitle("Detalle de Gasto Compartido");
             builder.setMessage("Concepto: " + deuda.getConcepto() + "\n" +
                     "Participante: " + deuda.getContactoNombre() + "\n" +
-                    "Monto Cuota: " + String.format(Locale.getDefault(), "$%.2f", deuda.getMonto()) + "\n" +
+                    "Monto Cuota: " + FormatoMoneda.aPesoChileno(deuda.getMonto()) + "\n" +
                     "Tipo: " + ("me_deben".equals(deuda.getTipoDeuda()) ? "Por Cobrar" : "Por Pagar") + "\n" +
                     "Estado: " + (deuda.isEsPagada() ? "Saldada" : "Pendiente"));
 

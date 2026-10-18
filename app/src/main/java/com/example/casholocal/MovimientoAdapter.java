@@ -34,7 +34,7 @@ public class MovimientoAdapter extends RecyclerView.Adapter<MovimientoAdapter.Mo
         
         boolean esIngreso = "ingreso".equalsIgnoreCase(mov.getTipo());
         String signo = esIngreso ? "+" : "-";
-        holder.tvmontotransaccion.setText(String.format(Locale.getDefault(), "%s$%.2f", signo, mov.getMonto()));
+        holder.tvmontotransaccion.setText(signo + FormatoMoneda.aPesoChileno(mov.getMonto()));
         holder.tvmontotransaccion.setTextColor(esIngreso ? 0xFF2E7D32 : 0xFFC62828);
 
         holder.tvcuentatransaccion.setText(mov.getFecha() != null ? mov.getFecha() : "Hoy");

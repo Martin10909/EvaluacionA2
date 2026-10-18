@@ -1,11 +1,13 @@
 package com.example.casholocal;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
@@ -17,6 +19,7 @@ public class CompraAdapter extends RecyclerView.Adapter<CompraAdapter.CompraView
 
     public interface OnCompraClickListener {
         void onAccionCompra(CompraModel compra);
+        void onEliminarCompra(CompraModel compra);
     }
 
     private List<CompraModel> listaCompras;
@@ -41,13 +44,45 @@ public class CompraAdapter extends RecyclerView.Adapter<CompraAdapter.CompraView
         holder.tvcategoriacompra.setText(compra.getCategoria() != null ? compra.getCategoria() : "General");
         holder.tvmontocompra.setText(String.format(Locale.getDefault(), "$%.2f", compra.getMonto()));
         holder.tvestadocompra.setText(compra.isEsRealizada() ? "Realizada" : "Agendada");
-        holder.tvubicacioncompra.setText("Fecha: " + (compra.getFecha() != null ? compra.getFecha() : "Programada"));
 
-        holder.btnaccioncompra.setText(compra.isEsRealizada() ? "Detalles" : "Marcar Realizada");
+        String contactoInfo = compra.getContactoNombre() != null ? " | Contacto: " + compra.getContactoNombre() : "";
+        holder.tvubicacioncompra.setText("Fecha: " + (compra.getFecha() != null ? compra.getFecha() : "Programada") + contactoInfo);
+
+        holder.btnaccioncompra.setText(compra.isEsRealizada() ? "Ver Detalle" : "Marcar Realizada");
         holder.btnaccioncompra.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onAccionCompra(compra);
             }
+        });
+
+        // Al pulsar sobre la tarjeta, ver el detalle completo de la compra, mapa GPS y botón de eliminar
+        holder.itemView.setOnClickListener(v -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(holder.itemView.getContext());
+            builder.setTitle("Detalle de Compra");
+
+            String mensajeDetalle = "Título: " + compra.getTitulo() + "\n" +
+                    "Monto: " + String.format(Locale.getDefault(), "$%.2f", compra.getMonto()) + "\n" +
+                    "Categoría: " + (compra.getCategoria() != null ? compra.getCategoria() : "General") + "\n" +
+                    "Fecha: " + (compra.getFecha() != null ? compra.getFecha() : "Programada") + "\n" +
+                    "Estado: " + (compra.isEsRealizada() ? "Realizada" : "Agendada Futura") + "\n" +
+                    "Contacto Vinculado: " + (compra.getContactoNombre() != null ? compra.getContactoNombre() : "Ninguno") + "\n" +
+                    "GPS: -33.4372, -70.6506";
+
+            builder.setMessage(mensajeDetalle);
+
+            builder.setPositiveButton("Ver en Mapa", (dialog, which) -> {
+                Intent intent = new Intent(holder.itemView.getContext(), MapActivity.class);
+                holder.itemView.getContext().startActivity(intent);
+            });
+
+            builder.setNeutralButton("Eliminar", (dialog, which) -> {
+                if (listener != null) {
+                    listener.onEliminarCompra(compra);
+                }
+            });
+
+            builder.setNegativeButton("Cerrar", null);
+            builder.show();
         });
     }
 

@@ -1,12 +1,17 @@
 package com.example.casholocal;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,13 +27,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
 public class PurchasesFragment extends Fragment {
 
-    // 16 Componentes de la Paleta
+    // Componentes de la Paleta
     private CoordinatorLayout coordinatorraizcompras;
     private LinearLayout llcontenedorprincipal;
     private CardView cvtarjetaresumen;
@@ -43,12 +51,15 @@ public class PurchasesFragment extends Fragment {
     private TabItem pestanaagendadas;
     private LinearLayout llcontenedorlista;
     private TextView tvencabezadocompras;
+    private TextInputLayout tilbuscarcompras;
+    private EditText etbuscarcompras;
     private RecyclerView rvlistacompras;
     private FloatingActionButton fabagregarcompra;
 
     private DatabaseHelper dbHelper;
     private CompraAdapter compraAdapter;
     private boolean mostrandoRealizadas = true;
+    private String fechaSeleccionadaCompra = "Hoy";
 
     public PurchasesFragment() {
         // Constructor público vacío requerido
@@ -85,6 +96,8 @@ public class PurchasesFragment extends Fragment {
         pestanaagendadas = view.findViewById(R.id.pestanaagendadas);
         llcontenedorlista = view.findViewById(R.id.llcontenedorlista);
         tvencabezadocompras = view.findViewById(R.id.tvencabezadocompras);
+        tilbuscarcompras = view.findViewById(R.id.tilbuscarcompras);
+        etbuscarcompras = view.findViewById(R.id.etbuscarcompras);
         rvlistacompras = view.findViewById(R.id.rvlistacompras);
         fabagregarcompra = view.findViewById(R.id.fabagregarcompra);
     }
@@ -92,11 +105,23 @@ public class PurchasesFragment extends Fragment {
     private void configurarRecyclerView() {
         if (rvlistacompras != null && getContext() != null) {
             rvlistacompras.setLayoutManager(new LinearLayoutManager(getContext()));
-            List<CompraModel> compras = dbHelper.obtenerComprasPorEstado(mostrandoRealizadas);
-            compraAdapter = new CompraAdapter(compras, compra -> {
-                if (!compra.isEsRealizada()) {
-                    dbHelper.insertarCompra(new CompraModel(compra.getId(), compra.getTitulo(), compra.getMonto(), "Hoy", true, compra.getContactoId(), compra.getCategoria()));
-                    Toast.makeText(getContext(), "Compra marcada como realizada", Toast.LENGTH_SHORT).show();
+            String filtro = etbuscarcompras != null && etbuscarcompras.getText() != null ? etbuscarcompras.getText().toString() : "";
+            List<CompraModel> compras = dbHelper.obtenerComprasFiltradas(mostrandoRealizadas, filtro);
+            compraAdapter = new CompraAdapter(compras, new CompraAdapter.OnCompraClickListener() {
+                @Override
+                public void onAccionCompra(CompraModel compra) {
+                    if (!compra.isEsRealizada()) {
+                        dbHelper.eliminarCompra(compra.getId());
+                        dbHelper.insertarCompra(new CompraModel(0, compra.getTitulo(), compra.getMonto(), "Hoy", true, compra.getContactoId(), compra.getContactoNombre(), compra.getCategoria(), compra.getLatitud(), compra.getLongitud()));
+                        Toast.makeText(getContext(), "Compra marcada como realizada", Toast.LENGTH_SHORT).show();
+                        actualizarResumenYLista();
+                    }
+                }
+
+                @Override
+                public void onEliminarCompra(CompraModel compra) {
+                    dbHelper.eliminarCompra(compra.getId());
+                    Toast.makeText(getContext(), "Compra eliminada", Toast.LENGTH_SHORT).show();
                     actualizarResumenYLista();
                 }
             });
@@ -108,11 +133,12 @@ public class PurchasesFragment extends Fragment {
         if (dbHelper != null) {
             double total = dbHelper.obtenerTotalCompras();
             if (tvmontoresumencompras != null) {
-                tvmontoresumencompras.setText(String.format(Locale.getDefault(), "$%.2f", total));
+                tvmontoresumencompras.setText(FormatoMoneda.aPesoChileno(total));
             }
 
             if (compraAdapter != null) {
-                List<CompraModel> comprasFiltradas = dbHelper.obtenerComprasPorEstado(mostrandoRealizadas);
+                String filtro = etbuscarcompras != null && etbuscarcompras.getText() != null ? etbuscarcompras.getText().toString() : "";
+                List<CompraModel> comprasFiltradas = dbHelper.obtenerComprasFiltradas(mostrandoRealizadas, filtro);
                 compraAdapter.actualizarLista(comprasFiltradas);
             }
         }
@@ -138,25 +164,72 @@ public class PurchasesFragment extends Fragment {
                 public void onTabReselected(TabLayout.Tab tab) {}
             });
         }
+
+        if (etbuscarcompras != null) {
+            etbuscarcompras.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    actualizarResumenYLista();
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {}
+            });
+        }
     }
 
     private void mostrarDialogoNuevaCompra() {
-        if (getContext() == null) return;
+        if (getContext() == null || dbHelper == null) return;
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle(mostrandoRealizadas ? "Nueva Compra Realizada" : "Agendar Compra Futura");
+        builder.setTitle(mostrandoRealizadas ? "Registrar Nueva Compra" : "Planificar Compra Futura");
 
         LinearLayout layout = new LinearLayout(getContext());
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setPadding(32, 16, 32, 16);
 
         final EditText etTitulo = new EditText(getContext());
-        etTitulo.setHint("Título de la compra (ej. Supermercado)");
+        etTitulo.setHint("Nombre de la compra o producto");
         layout.addView(etTitulo);
 
         final EditText etMonto = new EditText(getContext());
-        etMonto.setHint("Monto estimado ($)");
+        etMonto.setHint("Monto estimado ($ CLP)");
         etMonto.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
         layout.addView(etMonto);
+
+        final EditText etFecha = new EditText(getContext());
+        etFecha.setHint("Fecha de compra (Toca para seleccionar)");
+        etFecha.setFocusable(false);
+        etFecha.setOnClickListener(v -> {
+            Calendar calendar = Calendar.getInstance();
+            DatePickerDialog dpd = new DatePickerDialog(getContext(), (view, year, month, dayOfMonth) -> {
+                fechaSeleccionadaCompra = String.format(Locale.getDefault(), "%02d/%02d/%d", dayOfMonth, month + 1, year);
+                etFecha.setText(fechaSeleccionadaCompra);
+            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+            dpd.show();
+        });
+        layout.addView(etFecha);
+
+        // Spinner para vincular un contacto
+        TextView tvContacto = new TextView(getContext());
+        tvContacto.setText("Vincular con Contacto (Opcional):");
+        tvContacto.setPadding(0, 12, 0, 4);
+        layout.addView(tvContacto);
+
+        final Spinner spContacto = new Spinner(getContext());
+        List<ContactoModel> contactos = dbHelper.obtenerContactos();
+        List<String> nombresContactos = new ArrayList<>();
+        nombresContactos.add("Sin contacto vinculado");
+        for (ContactoModel c : contactos) {
+            nombresContactos.add(c.getNombre());
+        }
+
+        ArrayAdapter<String> adapterContactos = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, nombresContactos);
+        adapterContactos.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spContacto.setAdapter(adapterContactos);
+        layout.addView(spContacto);
 
         builder.setView(layout);
 
@@ -168,10 +241,20 @@ public class PurchasesFragment extends Fragment {
                 monto = Double.parseDouble(montoStr);
             } catch (Exception ignored) {}
 
-            if (!titulo.isEmpty()) {
-                dbHelper.insertarCompra(new CompraModel(0, titulo, monto, "Hoy", mostrandoRealizadas, null, "Compras"));
+            Long contactoIdSelected = null;
+            String contactoNombreSelected = null;
+            int pos = spContacto.getSelectedItemPosition();
+            if (pos > 0 && pos - 1 < contactos.size()) {
+                contactoIdSelected = contactos.get(pos - 1).getId();
+                contactoNombreSelected = contactos.get(pos - 1).getNombre();
+            }
+
+            if (!titulo.isEmpty() && monto > 0) {
+                dbHelper.insertarCompra(new CompraModel(0, titulo, monto, fechaSeleccionadaCompra, mostrandoRealizadas, contactoIdSelected, contactoNombreSelected, "Compras", -33.4372, -70.6506));
                 actualizarResumenYLista();
-                Toast.makeText(getContext(), "Compra registrada", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Compra guardada con éxito", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), "Ingresa un nombre y monto válido", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -200,6 +283,8 @@ public class PurchasesFragment extends Fragment {
     public TabItem getPestanaagendadas() { return pestanaagendadas; }
     public LinearLayout getLlcontenedorlista() { return llcontenedorlista; }
     public TextView getTvencabezadocompras() { return tvencabezadocompras; }
+    public TextInputLayout getTilbuscarcompras() { return tilbuscarcompras; }
+    public EditText getEtbuscarcompras() { return etbuscarcompras; }
     public RecyclerView getRvlistacompras() { return rvlistacompras; }
     public FloatingActionButton getFabagregarcompra() { return fabagregarcompra; }
 }

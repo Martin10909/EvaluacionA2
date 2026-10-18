@@ -335,9 +335,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public List<CompraModel> obtenerComprasPorEstado(boolean esRealizada) {
+        return obtenerComprasFiltradas(esRealizada, "");
+    }
+
+    public List<CompraModel> obtenerComprasFiltradas(boolean esRealizada, String filtroBusqueda) {
         List<CompraModel> lista = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLA_COMPRAS + " WHERE " + COL_COMPRA_ES_REALIZADA + " = ? ORDER BY " + COL_COMPRA_ID + " DESC", new String[]{esRealizada ? "1" : "0"});
+        String query = "SELECT c." + COL_COMPRA_ID + ", c." + COL_COMPRA_TITULO + ", c." + COL_COMPRA_MONTO + ", c." + COL_COMPRA_FECHA + ", c." + COL_COMPRA_ES_REALIZADA + ", c." + COL_COMPRA_CONTACTO_ID + ", ct." + COL_CONTACTO_NOMBRE + ", c." + COL_COMPRA_CATEGORIA +
+                " FROM " + TABLA_COMPRAS + " c LEFT JOIN " + TABLA_CONTACTOS + " ct ON c." + COL_COMPRA_CONTACTO_ID + " = ct." + COL_CONTACTO_ID +
+                " WHERE c." + COL_COMPRA_ES_REALIZADA + " = ?";
+
+        String[] args;
+        if (filtroBusqueda != null && !filtroBusqueda.trim().isEmpty()) {
+            query += " AND (c." + COL_COMPRA_TITULO + " LIKE ? OR c." + COL_COMPRA_CATEGORIA + " LIKE ?)";
+            String pattern = "%" + filtroBusqueda.trim() + "%";
+            args = new String[]{esRealizada ? "1" : "0", pattern, pattern};
+        } else {
+            args = new String[]{esRealizada ? "1" : "0"};
+        }
+        query += " ORDER BY c." + COL_COMPRA_ID + " DESC";
+
+        Cursor cursor = db.rawQuery(query, args);
         if (cursor.moveToFirst()) {
             do {
                 long id = cursor.getLong(0);
@@ -346,12 +364,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String fecha = cursor.getString(3);
                 boolean realizada = cursor.getInt(4) == 1;
                 Long contactoId = cursor.isNull(5) ? null : cursor.getLong(5);
-                String cat = cursor.getString(6);
-                lista.add(new CompraModel(id, titulo, monto, fecha, realizada, contactoId, cat));
+                String contactoNombre = cursor.getString(6);
+                String cat = cursor.getString(7);
+                lista.add(new CompraModel(id, titulo, monto, fecha, realizada, contactoId, contactoNombre, cat, -33.4372, -70.6506));
             } while (cursor.moveToNext());
         }
         cursor.close();
         return lista;
+    }
+
+    public void eliminarCompra(long idCompra) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLA_COMPRAS, COL_COMPRA_ID + " = ?", new String[]{String.valueOf(idCompra)});
     }
 
     public double obtenerTotalCompras() {

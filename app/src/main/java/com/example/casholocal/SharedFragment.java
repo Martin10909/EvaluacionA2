@@ -20,7 +20,6 @@ import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
 
 import java.util.List;
-import java.util.Locale;
 
 public class SharedFragment extends Fragment {
 
@@ -118,11 +117,11 @@ public class SharedFragment extends Fragment {
             double totalYoDebo = dbHelper.obtenerTotalYoDebo();
 
             if (tvmedebencompartido != null) {
-                tvmedebencompartido.setText(String.format(Locale.getDefault(), "$%.2f", totalMeDeben));
+                tvmedebencompartido.setText(FormatoMoneda.aPesoChileno(totalMeDeben));
             }
 
             if (tvyodebo != null) {
-                tvyodebo.setText(String.format(Locale.getDefault(), "$%.2f", totalYoDebo));
+                tvyodebo.setText(FormatoMoneda.aPesoChileno(totalYoDebo));
             }
 
             if (adapter != null) {
