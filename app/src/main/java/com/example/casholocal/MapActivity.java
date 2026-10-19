@@ -24,10 +24,13 @@ import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase;
 import org.osmdroid.tileprovider.tilesource.XYTileSource;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Marker;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MapActivity extends AppCompatActivity {
 
-    // 27 Componentes de la Paleta
     private CoordinatorLayout coordinatorraizmapa;
     private MapView vistemapa;
     private LinearLayout llencabezadomapa;
@@ -56,19 +59,25 @@ public class MapActivity extends AppCompatActivity {
     private FrameLayout flcapacargamapa;
     private ProgressBar pbcargando;
 
+    private DatabaseHelper dbHelper;
+    private List<MovimientoModel> listaMovimientos = new ArrayList<>();
+    private GeoPoint puntoInicial = new GeoPoint(-33.4372, -70.6506);
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // User-Agent único para la aplicación móvil CashoLocal
-        Configuration.getInstance().setUserAgentValue("CashoLocal-MobileApp/1.0 (Android; OpenSourceMap)");
+        Configuration.getInstance().setUserAgentValue(getPackageName());
         Configuration.getInstance().load(getApplicationContext(), PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
 
         setContentView(R.layout.activity_map);
 
+        dbHelper = new DatabaseHelper(this);
+
         initViews();
         configurarMapa();
         configurarListeners();
+        cargarDatos();
     }
 
     private void initViews() {
@@ -103,7 +112,6 @@ public class MapActivity extends AppCompatActivity {
 
     private void configurarMapa() {
         if (vistemapa != null) {
-            // Utilizar servidor de mapas de código abierto libre de restricciones (CartoDB / OpenStreetMap)
             OnlineTileSourceBase fuenteMapaLibre = new XYTileSource(
                     "CartoDB_Positron",
                     0, 19, 256, ".png",
@@ -112,14 +120,93 @@ public class MapActivity extends AppCompatActivity {
                             "https://b.basemaps.cartocdn.com/light_all/",
                             "https://c.basemaps.cartocdn.com/light_all/"
                     },
-                    "© OpenStreetMap contributors, © CARTO"
+                    "OpenStreetMap contributors, CARTO"
             );
 
             vistemapa.setTileSource(fuenteMapaLibre);
             vistemapa.setMultiTouchControls(true);
-            GeoPoint puntoInicial = new GeoPoint(-33.4372, -70.6506);
             vistemapa.getController().setZoom(15.0);
             vistemapa.getController().setCenter(puntoInicial);
+        }
+    }
+
+    private void cargarDatos() {
+        if (dbHelper != null) {
+            listaMovimientos = dbHelper.obtenerMovimientos("");
+            mostrarMarcadores("todos");
+        }
+    }
+
+    private void mostrarMarcadores(String filtro) {
+        if (vistemapa == null) return;
+
+        vistemapa.getOverlays().clear();
+
+        boolean primerMarcadorFijado = false;
+
+        for (MovimientoModel mov : listaMovimientos) {
+            if ("gastos".equals(filtro) && !"egreso".equalsIgnoreCase(mov.getTipo())) {
+                continue;
+            }
+            if ("ingresos".equals(filtro) && !"ingreso".equalsIgnoreCase(mov.getTipo())) {
+                continue;
+            }
+
+            double lat = mov.getLatitud();
+            double lng = mov.getLongitud();
+
+            if (lat == 0 && lng == 0) {
+                lat = -33.4372;
+                lng = -70.6506;
+            }
+
+            GeoPoint pos = new GeoPoint(lat, lng);
+
+            Marker marcador = new Marker(vistemapa);
+            marcador.setPosition(pos);
+            marcador.setTitle(mov.getDescripcion());
+            marcador.setSnippet(FormatoMoneda.aPesoChileno(mov.getMonto()));
+
+            final MovimientoModel movActual = mov;
+            marcador.setOnMarkerClickListener((marker, mapView) -> {
+                mostrarDetalleMarcador(movActual);
+                return true;
+            });
+
+            vistemapa.getOverlays().add(marcador);
+
+            if (!primerMarcadorFijado) {
+                mostrarDetalleMarcador(mov);
+                puntoInicial = pos;
+                primerMarcadorFijado = true;
+            }
+        }
+
+        vistemapa.invalidate();
+    }
+
+    private void mostrarDetalleMarcador(MovimientoModel mov) {
+        if (mov == null) return;
+
+        if (tvtitulomarcador != null) {
+            tvtitulomarcador.setText(mov.getDescripcion());
+        }
+        if (tvsubtitulomarcador != null) {
+            tvsubtitulomarcador.setText(mov.getCategoria() + " - " + mov.getFecha());
+        }
+        if (tvmontomarcador != null) {
+            tvmontomarcador.setText(FormatoMoneda.aPesoChileno(mov.getMonto()));
+            if ("ingreso".equalsIgnoreCase(mov.getTipo())) {
+                tvmontomarcador.setTextColor(0xFF2E7D32);
+            } else {
+                tvmontomarcador.setTextColor(0xFFC62828);
+            }
+        }
+        if (tvcoordenadasmarcador != null) {
+            tvcoordenadasmarcador.setText("GPS: " + mov.getLatitud() + ", " + mov.getLongitud());
+        }
+        if (tarjetamarcadorseleccionado != null) {
+            tarjetamarcadorseleccionado.setVisibility(View.VISIBLE);
         }
     }
 
@@ -131,16 +218,28 @@ public class MapActivity extends AppCompatActivity {
         if (btnrecentrarmapa != null) {
             btnrecentrarmapa.setOnClickListener(v -> {
                 if (vistemapa != null) {
-                    GeoPoint puntoInicial = new GeoPoint(-33.4372, -70.6506);
                     vistemapa.getController().animateTo(puntoInicial);
                 }
             });
         }
 
+        if (fichatodos != null) {
+            fichatodos.setOnClickListener(v -> mostrarMarcadores("todos"));
+        }
+        if (fichagastos != null) {
+            fichagastos.setOnClickListener(v -> mostrarMarcadores("gastos"));
+        }
+        if (fichaingresos != null) {
+            fichaingresos.setOnClickListener(v -> mostrarMarcadores("ingresos"));
+        }
+
         if (btncompartirmarcador != null) {
-            btncompartirmarcador.setOnClickListener(v -> 
-                Toast.makeText(this, "Ubicación compartida", Toast.LENGTH_SHORT).show()
-            );
+            btncompartirmarcador.setOnClickListener(v -> {
+                String desc = tvtitulomarcador != null ? tvtitulomarcador.getText().toString() : "Gasto";
+                String monto = tvmontomarcador != null ? tvmontomarcador.getText().toString() : "";
+                String coords = tvcoordenadasmarcador != null ? tvcoordenadasmarcador.getText().toString() : "";
+                Toast.makeText(this, desc + " (" + monto + ") - " + coords, Toast.LENGTH_SHORT).show();
+            });
         }
     }
 

@@ -37,7 +37,6 @@ import java.util.Locale;
 
 public class HomeFragment extends Fragment {
 
-    // 44 Componentes de la Paleta
     private NestedScrollView nsvprincipal;
     private ConstraintLayout clraizhome;
     private ConstraintLayout clseccionencabezado;

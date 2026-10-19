@@ -19,7 +19,6 @@ import com.google.android.material.textfield.TextInputLayout;
 
 public class AddContactDialogFragment extends DialogFragment {
 
-    // 14 Componentes de la Paleta
     private LinearLayout llnuevocontactoraiz;
     private TextView tvtitulonuevocontacto;
     private TextView tvsubtitulonuevocontacto;

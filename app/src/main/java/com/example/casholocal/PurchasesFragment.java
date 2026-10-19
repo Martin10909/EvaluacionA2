@@ -36,7 +36,6 @@ import java.util.Locale;
 
 public class PurchasesFragment extends Fragment {
 
-    // Componentes de la Paleta
     private CoordinatorLayout coordinatorraizcompras;
     private LinearLayout llcontenedorprincipal;
     private CardView cvtarjetaresumen;

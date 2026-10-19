@@ -20,7 +20,6 @@ import java.util.List;
 
 public class ContactsFragment extends Fragment {
 
-    // 7 Componentes de la Paleta
     private CoordinatorLayout coordinatorraizcontactos;
     private LinearLayout llcontenedorraizcontactos;
     private LinearLayout llencabezadocontactos;

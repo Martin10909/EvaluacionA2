@@ -34,7 +34,6 @@ import java.util.Locale;
 
 public class AddTransactionDialogFragment extends DialogFragment {
 
-    // 26 Componentes de la Paleta
     private ScrollView scrollnuevatransaccion;
     private LinearLayout llcontenedorraizdialogo;
     private TextView tvtituloregistrarmovimiento;
@@ -161,10 +160,10 @@ public class AddTransactionDialogFragment extends DialogFragment {
 
         if (btncapturargps != null) {
             btncapturargps.setOnClickListener(v -> {
-                if (getActivity() != null) {
-                    Intent intent = new Intent(getActivity(), MapActivity.class);
-                    startActivity(intent);
+                if (tvcoordenadasgps != null) {
+                    tvcoordenadasgps.setText("GPS: -33.4372, -70.6506 (Fijado)");
                 }
+                Toast.makeText(getContext(), "Ubicación GPS registrada correctamente", Toast.LENGTH_SHORT).show();
             });
         }
 

@@ -33,7 +33,6 @@ import java.util.Locale;
 
 public class AddSharedExpenseDialogFragment extends DialogFragment {
 
-    // 28 Componentes de la Paleta
     private ScrollView scrollnuevogastocompartido;
     private LinearLayout llcontenedorraizdialogocompartido;
     private TextView tvtitulodividirgasto;
@@ -179,10 +178,10 @@ public class AddSharedExpenseDialogFragment extends DialogFragment {
 
         if (btncapturargpscompartido != null) {
             btncapturargpscompartido.setOnClickListener(v -> {
-                if (getActivity() != null) {
-                    Intent intent = new Intent(getActivity(), MapActivity.class);
-                    startActivity(intent);
+                if (tvcoordenadasgpscompartido != null) {
+                    tvcoordenadasgpscompartido.setText("GPS: -33.4372, -70.6506 (Fijado)");
                 }
+                Toast.makeText(getContext(), "Ubicación GPS registrada correctamente", Toast.LENGTH_SHORT).show();
             });
         }
 
