@@ -5,7 +5,7 @@
     android:id="@+id/scrollnuevogastocompartido"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#FFFFFF"
+    android:background="@color/surface_light"
     tools:context=".AddSharedExpenseDialogFragment">
 
     <LinearLayout
@@ -21,7 +21,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/shared_dialog_title"
-            android:textColor="#212121"
+            android:textColor="@color/text_primary"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:text="@string/shared_dialog_subtitle"
-            android:textColor="#757575"
+            android:textColor="@color/text_secondary"
             android:textSize="13sp" />
 
         <!-- Concept Input -->
@@ -41,13 +41,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="@string/concept_hint">
+            android:hint="@string/concept_hint"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etconceptoservicio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text" />
+                android:inputType="text"
+                android:textColor="@color/text_primary" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -58,13 +63,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:hint="@string/total_amount_hint">
+            android:hint="@string/total_amount_hint"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etmontototaldividir"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="numberDecimal" />
+                android:inputType="numberDecimal"
+                android:textColor="@color/text_primary" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -75,13 +85,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:hint="@string/category_hint">
+            android:hint="@string/category_hint"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etcategoriagasto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text" />
+                android:inputType="text"
+                android:textColor="@color/text_primary" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -92,7 +107,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/who_paid_label"
-            android:textColor="#212121"
+            android:textColor="@color/text_primary"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -110,7 +125,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/select_contacts_label"
-            android:textColor="#212121"
+            android:textColor="@color/text_primary"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -127,7 +142,7 @@
                 android:layout_height="wrap_content"
                 android:checked="true"
                 android:text="@string/sample_contact_1"
-                android:textColor="#212121" />
+                android:textColor="@color/text_primary" />
 
         </LinearLayout>
 
@@ -137,8 +152,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            app:cardBackgroundColor="#E8F5E9"
-            app:cardCornerRadius="8dp"
+            app:cardBackgroundColor="@color/primary_container"
+            app:cardCornerRadius="12dp"
             app:cardElevation="0dp">
 
             <TextView
@@ -147,7 +162,7 @@
                 android:layout_height="wrap_content"
                 android:padding="12dp"
                 android:text="@string/split_preview_default"
-                android:textColor="#2E7D32"
+                android:textColor="@color/primary"
                 android:textSize="12sp" />
 
         </androidx.cardview.widget.CardView>
@@ -158,8 +173,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp">
+            app:cardBackgroundColor="@color/background_light"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp">
 
             <LinearLayout
                 android:id="@+id/llcontenedorgpscompartido"
@@ -177,11 +193,11 @@
 
                     <ImageView
                         android:id="@+id/imgiconogpscompartido"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
                         android:contentDescription="@string/gps_title"
-                        android:src="@android:drawable/ic_menu_myplaces"
-                        app:tint="#2E7D32" />
+                        android:src="@drawable/ic_location"
+                        app:tint="@color/primary" />
 
                     <TextView
                         android:id="@+id/tvtituloubicacioncompartido"
@@ -190,7 +206,7 @@
                         android:layout_marginStart="8dp"
                         android:layout_weight="1"
                         android:text="@string/gps_title"
-                        android:textColor="#212121"
+                        android:textColor="@color/text_primary"
                         android:textSize="14sp"
                         android:textStyle="bold" />
 
@@ -200,7 +216,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/capture_gps_btn"
-                        android:textColor="#2E7D32" />
+                        android:textColor="@color/primary" />
 
                 </LinearLayout>
 
@@ -210,7 +226,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="@string/default_gps_coords"
-                    android:textColor="#757575"
+                    android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -220,6 +236,7 @@
                     android:layout_marginTop="8dp"
                     android:hint="@string/place_name_hint"
                     android:inputType="text"
+                    android:textColor="@color/text_primary"
                     android:textSize="13sp" />
 
             </LinearLayout>
@@ -241,16 +258,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/cancel_btn"
-                android:textColor="#757575" />
+                android:textColor="@color/text_secondary" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnguardargastocompartido"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
-                android:backgroundTint="#2E7D32"
+                android:backgroundTint="@color/primary"
                 android:text="@string/save_btn"
-                android:textColor="#FFFFFF" />
+                android:textColor="@color/white" />
 
         </LinearLayout>
 

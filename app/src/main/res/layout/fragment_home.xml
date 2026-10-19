@@ -5,10 +5,10 @@
     android:id="@+id/nsvprincipal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
+    android:background="@color/background_light"
     android:clipToPadding="false"
-    android:paddingBottom="16dp"
-    android:background="#F5F5F7"
+    android:fillViewport="true"
+    android:paddingBottom="24dp"
     tools:context=".HomeFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -22,19 +22,31 @@
             android:id="@+id/clseccionencabezado"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <ImageView
-                android:id="@+id/imgavatar"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cvavatarcontenedor"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:contentDescription="@string/user_avatar"
-                android:src="@android:drawable/ic_menu_gallery"
+                app:cardBackgroundColor="@color/primary_container"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/imgavatar"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/user_avatar"
+                    android:src="@drawable/ic_profile"
+                    app:tint="@color/primary" />
+            </androidx.cardview.widget.CardView>
 
             <TextView
                 android:id="@+id/tvbienvenida"
@@ -42,10 +54,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
                 android:text="@string/welcome_label"
-                android:textColor="#757575"
+                android:textColor="@color/text_secondary"
                 android:textSize="12sp"
-                app:layout_constraintStart_toEndOf="@id/imgavatar"
-                app:layout_constraintTop_toTopOf="@id/imgavatar" />
+                app:layout_constraintStart_toEndOf="@id/cvavatarcontenedor"
+                app:layout_constraintTop_toTopOf="@id/cvavatarcontenedor" />
 
             <TextView
                 android:id="@+id/tvnombreusuario"
@@ -53,11 +65,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
                 android:text="@string/default_username"
-                android:textColor="#212121"
+                android:textColor="@color/text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="@id/imgavatar"
-                app:layout_constraintStart_toEndOf="@id/imgavatar"
+                app:layout_constraintBottom_toBottomOf="@id/cvavatarcontenedor"
+                app:layout_constraintStart_toEndOf="@id/cvavatarcontenedor"
                 app:layout_constraintTop_toBottomOf="@id/tvbienvenida" />
 
             <ImageButton
@@ -66,10 +78,13 @@
                 android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/notifications"
-                android:src="@android:drawable/ic_popup_reminder"
+                android:padding="8dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_notification"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/btnperfilusuario"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/text_primary" />
 
             <ImageButton
                 android:id="@+id/btnperfilusuario"
@@ -77,10 +92,13 @@
                 android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/user_profile"
-                android:src="@android:drawable/ic_menu_manage"
+                android:padding="8dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_profile"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/text_primary" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -89,8 +107,8 @@
             android:id="@+id/cvtarjetabalance"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardCornerRadius="16dp"
+            android:layout_marginTop="20dp"
+            app:cardCornerRadius="20dp"
             app:cardElevation="4dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -100,7 +118,7 @@
                 android:id="@+id/clcontenedorbalance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#2E7D32"
+                android:background="@drawable/bg_gradient_card"
                 android:padding="20dp">
 
                 <TextView
@@ -108,8 +126,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/balance_title"
-                    android:textColor="#E8F5E9"
-                    android:textSize="14sp"
+                    android:textColor="#D1FAE5"
+                    android:textSize="13sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -119,8 +137,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="@string/default_amount"
-                    android:textColor="#FFFFFF"
-                    android:textSize="28sp"
+                    android:textColor="@color/white"
+                    android:textSize="32sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/tvtitulobalance" />
@@ -130,7 +148,7 @@
                     android:layout_width="0dp"
                     android:layout_height="1dp"
                     android:layout_marginTop="16dp"
-                    android:background="#81C784"
+                    android:background="#33FFFFFF"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/tvbalancetotal" />
@@ -158,15 +176,16 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/owed_title"
-                            android:textColor="#E8F5E9"
+                            android:textColor="#D1FAE5"
                             android:textSize="12sp" />
 
                         <TextView
                             android:id="@+id/tvmedeben"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
                             android:text="@string/default_amount"
-                            android:textColor="#FFFFFF"
+                            android:textColor="@color/white"
                             android:textSize="16sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -189,90 +208,132 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/cvtarjetabalance">
 
+            <!-- Ingreso Rapido -->
             <LinearLayout
                 android:id="@+id/btningresorapido"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:layout_weight="1"
-                android:background="@android:drawable/btn_default"
+                android:background="@drawable/bg_quick_action"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:padding="12dp">
+                android:paddingVertical="14dp"
+                android:paddingHorizontal="8dp">
 
-                <ImageView
-                    android:id="@+id/imgiconoingreso"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:contentDescription="@string/quick_income"
-                    android:src="@android:drawable/ic_input_add" />
+                <androidx.cardview.widget.CardView
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    app:cardBackgroundColor="@color/accent_green_container"
+                    app:cardCornerRadius="19dp"
+                    app:cardElevation="0dp">
+
+                    <ImageView
+                        android:id="@+id/imgiconoingreso"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/quick_income"
+                        android:src="@drawable/ic_income"
+                        app:tint="@color/accent_green_text" />
+                </androidx.cardview.widget.CardView>
 
                 <TextView
                     android:id="@+id/tvtituloingreso"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="6dp"
                     android:text="@string/quick_income"
-                    android:textSize="12sp" />
+                    android:textColor="@color/text_primary"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
             </LinearLayout>
 
+            <!-- Gasto Rapido -->
             <LinearLayout
                 android:id="@+id/btngastorapido"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:layout_weight="1"
-                android:background="@android:drawable/btn_default"
+                android:background="@drawable/bg_quick_action"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:padding="12dp">
+                android:paddingVertical="14dp"
+                android:paddingHorizontal="8dp">
 
-                <ImageView
-                    android:id="@+id/imgiconogasto"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:contentDescription="@string/quick_expense"
-                    android:src="@android:drawable/ic_delete" />
+                <androidx.cardview.widget.CardView
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    app:cardBackgroundColor="@color/accent_red_container"
+                    app:cardCornerRadius="19dp"
+                    app:cardElevation="0dp">
+
+                    <ImageView
+                        android:id="@+id/imgiconogasto"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/quick_expense"
+                        android:src="@drawable/ic_expense"
+                        app:tint="@color/accent_red_text" />
+                </androidx.cardview.widget.CardView>
 
                 <TextView
                     android:id="@+id/tvtitulogasto"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="6dp"
                     android:text="@string/quick_expense"
-                    android:textSize="12sp" />
+                    android:textColor="@color/text_primary"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
             </LinearLayout>
 
+            <!-- Dividir Gasto -->
             <LinearLayout
                 android:id="@+id/btndividirrapido"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@android:drawable/btn_default"
+                android:background="@drawable/bg_quick_action"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:padding="12dp">
+                android:paddingVertical="14dp"
+                android:paddingHorizontal="8dp">
 
-                <ImageView
-                    android:id="@+id/imgiconodividir"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:contentDescription="@string/quick_split"
-                    android:src="@android:drawable/ic_menu_share" />
+                <androidx.cardview.widget.CardView
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    app:cardBackgroundColor="@color/primary_container"
+                    app:cardCornerRadius="19dp"
+                    app:cardElevation="0dp">
+
+                    <ImageView
+                        android:id="@+id/imgiconodividir"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/quick_split"
+                        android:src="@drawable/ic_split"
+                        app:tint="@color/primary" />
+                </androidx.cardview.widget.CardView>
 
                 <TextView
                     android:id="@+id/tvtitulodividir"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="6dp"
                     android:text="@string/quick_split"
-                    android:textSize="12sp" />
+                    android:textColor="@color/text_primary"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
             </LinearLayout>
 
         </LinearLayout>
@@ -283,8 +344,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/surface_light"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="1dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/llaccionesrapidas">
@@ -300,7 +362,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/accounts_header"
-                    android:textColor="#212121"
+                    android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
@@ -311,8 +373,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/see_all"
-                    android:textColor="#2E7D32"
+                    android:textColor="@color/primary"
                     android:textSize="12sp"
+                    android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="@id/tvencabezadocuentas"
                     app:layout_constraintEnd_toStartOf="@id/btnagregarcuenta"
                     app:layout_constraintTop_toTopOf="@id/tvencabezadocuentas" />
@@ -323,7 +386,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/add_account"
-                    android:textColor="#2E7D32"
+                    android:textColor="@color/primary"
+                    android:textSize="12sp"
                     app:layout_constraintBottom_toBottomOf="@id/tvencabezadocuentas"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@id/tvencabezadocuentas" />
@@ -350,8 +414,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/surface_light"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="1dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/cvseccioncuentas">
@@ -367,7 +432,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/transactions_header"
-                    android:textColor="#212121"
+                    android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
@@ -378,8 +443,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/see_more"
-                    android:textColor="#2E7D32"
+                    android:textColor="@color/primary"
                     android:textSize="12sp"
+                    android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="@id/tvencabezadotransacciones"
                     app:layout_constraintEnd_toStartOf="@id/btnfiltrartransacciones"
                     app:layout_constraintTop_toTopOf="@id/tvencabezadotransacciones" />
@@ -390,10 +456,13 @@
                     android:layout_height="32dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/filter_transactions"
-                    android:src="@android:drawable/ic_menu_search"
+                    android:padding="6dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_filter"
                     app:layout_constraintBottom_toBottomOf="@id/tvencabezadotransacciones"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/tvencabezadotransacciones" />
+                    app:layout_constraintTop_toTopOf="@id/tvencabezadotransacciones"
+                    app:tint="@color/text_secondary" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilbusquedatransacciones"
@@ -402,6 +471,12 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:hint="@string/search_transactions_hint"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:startIconDrawable="@drawable/ic_search"
+                    app:startIconTint="@color/text_muted"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/tvencabezadotransacciones">
@@ -410,7 +485,9 @@
                         android:id="@+id/etbuscartransacciones"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="text" />
+                        android:inputType="text"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -420,7 +497,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:text="@string/no_transactions"
-                    android:textColor="#9E9E9E"
+                    android:textColor="@color/text_muted"
                     android:textSize="14sp"
                     android:visibility="gone"
                     app:layout_constraintEnd_toEndOf="parent"

@@ -7,8 +7,9 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="6dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp">
+    app:cardBackgroundColor="@color/surface_light"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="1dp">
 
     <LinearLayout
         android:id="@+id/llcontenedoritemcontacto"
@@ -18,16 +19,23 @@
         android:orientation="horizontal"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/tvinicialcontacto"
+        <androidx.cardview.widget.CardView
             android:layout_width="44dp"
             android:layout_height="44dp"
-            android:background="#E8F5E9"
-            android:gravity="center"
-            android:textColor="#2E7D32"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            tools:text="C" />
+            app:cardBackgroundColor="@color/primary_container"
+            app:cardCornerRadius="22dp"
+            app:cardElevation="0dp">
+
+            <TextView
+                android:id="@+id/tvinicialcontacto"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textColor="@color/primary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                tools:text="C" />
+        </androidx.cardview.widget.CardView>
 
         <LinearLayout
             android:id="@+id/lldetallesitemcontacto"
@@ -41,7 +49,7 @@
                 android:id="@+id/tvnombrecontacto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#212121"
+                android:textColor="@color/text_primary"
                 android:textSize="15sp"
                 android:textStyle="bold"
                 tools:text="Carlos Mendoza" />
@@ -51,7 +59,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:textColor="#757575"
+                android:textColor="@color/text_secondary"
                 android:textSize="12sp"
                 tools:text="+52 555 123 4567" />
 
@@ -59,24 +67,27 @@
                 android:id="@+id/tvestadodeudacontacto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:background="#E8F5E9"
+                android:layout_marginTop="6dp"
+                android:background="@color/accent_green_container"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="2dp"
-                android:textColor="#2E7D32"
+                android:textColor="@color/accent_green_text"
                 android:textSize="11sp"
+                android:textStyle="bold"
                 tools:text="Te debe $300.00" />
 
         </LinearLayout>
 
         <ImageButton
             android:id="@+id/btnaccioncontacto"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/contacts_title"
-            android:src="@android:drawable/ic_menu_share"
-            app:tint="#2E7D32" />
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_share"
+            app:tint="@color/primary" />
 
     </LinearLayout>
 

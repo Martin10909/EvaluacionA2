@@ -116,19 +116,31 @@ public class MainActivity extends AppCompatActivity {
         View btnMapa = findViewById(R.id.btnnavegacionmapa);
 
         if (btnInicio != null) {
-            btnInicio.setOnClickListener(v -> loadFragment(new HomeFragment()));
+            btnInicio.setOnClickListener(v -> {
+                actualizarEstadoNavegacion(R.id.btnnavegacioninicio);
+                loadFragment(new HomeFragment());
+            });
         }
 
         if (btnCompras != null) {
-            btnCompras.setOnClickListener(v -> loadFragment(new PurchasesFragment()));
+            btnCompras.setOnClickListener(v -> {
+                actualizarEstadoNavegacion(R.id.btnnavegacioncompras);
+                loadFragment(new PurchasesFragment());
+            });
         }
 
         if (btnCompartidos != null) {
-            btnCompartidos.setOnClickListener(v -> loadFragment(new SharedFragment()));
+            btnCompartidos.setOnClickListener(v -> {
+                actualizarEstadoNavegacion(R.id.btnnavegacioncompartidos);
+                loadFragment(new SharedFragment());
+            });
         }
 
         if (btnContactos != null) {
-            btnContactos.setOnClickListener(v -> loadFragment(new ContactsFragment()));
+            btnContactos.setOnClickListener(v -> {
+                actualizarEstadoNavegacion(R.id.btnnavegacioncontactos);
+                loadFragment(new ContactsFragment());
+            });
         }
 
         if (btnMapa != null) {
@@ -136,6 +148,29 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, MapActivity.class);
                 startActivity(intent);
             });
+        }
+    }
+
+    private void actualizarEstadoNavegacion(int selectedId) {
+        int colorPrimary = ContextCompat.getColor(this, R.color.primary);
+        int colorSecondary = ContextCompat.getColor(this, R.color.text_secondary);
+
+        actualizarTabNavegacion(R.id.imgicononavegacioninicio, R.id.tvetiquetanavegacioninicio, selectedId == R.id.btnnavegacioninicio, colorPrimary, colorSecondary);
+        actualizarTabNavegacion(R.id.imgicononavegacioncompras, R.id.tvetiquetanavegacioncompras, selectedId == R.id.btnnavegacioncompras, colorPrimary, colorSecondary);
+        actualizarTabNavegacion(R.id.imgicononavegacioncompartidos, R.id.tvetiquetanavegacioncompartidos, selectedId == R.id.btnnavegacioncompartidos, colorPrimary, colorSecondary);
+        actualizarTabNavegacion(R.id.imgicononavegacioncontactos, R.id.tvetiquetanavegacioncontactos, selectedId == R.id.btnnavegacioncontactos, colorPrimary, colorSecondary);
+        actualizarTabNavegacion(R.id.imgicononavegacionmapa, R.id.tvetiquetanavegacionmapa, selectedId == R.id.btnnavegacionmapa, colorPrimary, colorSecondary);
+    }
+
+    private void actualizarTabNavegacion(int iconResId, int textResId, boolean isSelected, int colorSelected, int colorUnselected) {
+        android.widget.ImageView icon = findViewById(iconResId);
+        android.widget.TextView text = findViewById(textResId);
+        if (icon != null) {
+            icon.setImageTintList(android.content.res.ColorStateList.valueOf(isSelected ? colorSelected : colorUnselected));
+        }
+        if (text != null) {
+            text.setTextColor(isSelected ? colorSelected : colorUnselected);
+            text.setTypeface(null, isSelected ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
         }
     }
 

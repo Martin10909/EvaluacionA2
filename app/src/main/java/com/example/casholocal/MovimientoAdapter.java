@@ -35,7 +35,11 @@ public class MovimientoAdapter extends RecyclerView.Adapter<MovimientoAdapter.Mo
         boolean esIngreso = "ingreso".equalsIgnoreCase(mov.getTipo());
         String signo = esIngreso ? "+" : "-";
         holder.tvmontotransaccion.setText(signo + FormatoMoneda.aPesoChileno(mov.getMonto()));
-        holder.tvmontotransaccion.setTextColor(esIngreso ? 0xFF2E7D32 : 0xFFC62828);
+        
+        int colorGreen = androidx.core.content.ContextCompat.getColor(holder.itemView.getContext(), R.color.accent_green_text);
+        int colorRed = androidx.core.content.ContextCompat.getColor(holder.itemView.getContext(), R.color.accent_red_text);
+        
+        holder.tvmontotransaccion.setTextColor(esIngreso ? colorGreen : colorRed);
 
         holder.tvcuentatransaccion.setText(mov.getFecha() != null ? mov.getFecha() : "Hoy");
         if (mov.getLatitud() != null && mov.getLongitud() != null) {
@@ -45,7 +49,7 @@ public class MovimientoAdapter extends RecyclerView.Adapter<MovimientoAdapter.Mo
         }
 
         holder.tvetiquetatipotransaccion.setText(esIngreso ? "Ingreso" : "Gasto");
-        holder.tvetiquetatipotransaccion.setTextColor(esIngreso ? 0xFF2E7D32 : 0xFFC62828);
+        holder.tvetiquetatipotransaccion.setTextColor(esIngreso ? colorGreen : colorRed);
     }
 
     @Override

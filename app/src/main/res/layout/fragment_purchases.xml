@@ -5,7 +5,7 @@
     android:id="@+id/coordinatorraizcompras"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F7"
+    android:background="@color/background_light"
     tools:context=".PurchasesFragment">
 
     <LinearLayout
@@ -20,14 +20,14 @@
             android:id="@+id/cvtarjetaresumen"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="16dp"
+            app:cardCornerRadius="20dp"
             app:cardElevation="4dp">
 
             <LinearLayout
                 android:id="@+id/llseccionresumen"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#2E7D32"
+                android:background="@drawable/bg_gradient_card"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:padding="20dp">
@@ -37,8 +37,8 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:contentDescription="@string/purchases_summary_label"
-                    android:src="@android:drawable/ic_menu_agenda"
-                    app:tint="#FFFFFF" />
+                    android:src="@drawable/ic_nav_purchases"
+                    app:tint="@color/white" />
 
                 <LinearLayout
                     android:id="@+id/lldetallemonto"
@@ -53,15 +53,15 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/purchases_summary_label"
-                        android:textColor="#E8F5E9"
-                        android:textSize="14sp" />
+                        android:textColor="#D1FAE5"
+                        android:textSize="13sp" />
 
                     <TextView
                         android:id="@+id/tvsubtituloresumen"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/purchases_summary_sub"
-                        android:textColor="#C8E6C9"
+                        android:textColor="#A7F3D0"
                         android:textSize="11sp" />
 
                     <TextView
@@ -70,8 +70,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="@string/default_amount"
-                        android:textColor="#FFFFFF"
-                        android:textSize="24sp"
+                        android:textColor="@color/white"
+                        android:textSize="26sp"
                         android:textStyle="bold" />
                 </LinearLayout>
 
@@ -86,9 +86,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:background="@android:color/transparent"
-            app:tabIndicatorColor="#2E7D32"
-            app:tabSelectedTextColor="#2E7D32"
-            app:tabTextColor="#757575">
+            app:tabIndicatorColor="@color/primary"
+            app:tabIndicatorHeight="3dp"
+            app:tabSelectedTextColor="@color/primary"
+            app:tabTextColor="@color/text_secondary">
 
             <com.google.android.material.tabs.TabItem
                 android:id="@+id/pestanarealizadas"
@@ -119,7 +120,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:text="@string/purchases_header"
-                android:textColor="#212121"
+                android:textColor="@color/text_primary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -129,13 +130,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:hint="Buscar compra o categoría">
+                android:hint="Buscar compra o categoría"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                app:startIconDrawable="@drawable/ic_search"
+                app:startIconTint="@color/text_muted">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etbuscarcompras"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="text" />
+                    android:inputType="text"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -158,8 +167,8 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="24dp"
         android:contentDescription="@string/add_purchase_desc"
-        android:src="@android:drawable/ic_input_add"
-        app:backgroundTint="#2E7D32"
-        app:tint="#FFFFFF" />
+        android:src="@drawable/ic_add"
+        app:backgroundTint="@color/primary"
+        app:tint="@color/white" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

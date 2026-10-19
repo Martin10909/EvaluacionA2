@@ -3,18 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cvtarjetacuenta"
-    android:layout_width="105dp"
-    android:layout_height="120dp"
+    android:layout_width="120dp"
+    android:layout_height="115dp"
     android:layout_margin="6dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp">
+    app:cardBackgroundColor="@color/surface_light"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="1dp">
 
     <LinearLayout
         android:id="@+id/llcontenedorprincipalcuenta"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="10dp">
+        android:padding="12dp">
 
         <LinearLayout
             android:id="@+id/llfilasuperiorcuenta"
@@ -28,7 +29,7 @@
                 android:layout_width="8dp"
                 android:layout_height="8dp"
                 android:layout_marginEnd="6dp"
-                android:background="#2E7D32" />
+                android:background="@drawable/ic_launcher_background" />
 
             <TextView
                 android:id="@+id/tvnombrecuenta"
@@ -37,8 +38,8 @@
                 android:layout_weight="1"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textColor="#212121"
-                android:textSize="12sp"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp"
                 android:textStyle="bold"
                 tools:text="Efectivo" />
 
@@ -51,7 +52,7 @@
             android:layout_marginTop="2dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textColor="#757575"
+            android:textColor="@color/text_secondary"
             android:textSize="11sp"
             tools:text="Billetera" />
 
@@ -65,8 +66,8 @@
             android:id="@+id/tvsaldoestadocuenta"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#2E7D32"
-            android:textSize="13sp"
+            android:textColor="@color/primary"
+            android:textSize="14sp"
             android:textStyle="bold"
             tools:text="$ 55.000" />
 

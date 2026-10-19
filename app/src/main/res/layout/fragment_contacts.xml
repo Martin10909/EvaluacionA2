@@ -5,7 +5,7 @@
     android:id="@+id/coordinatorraizcontactos"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F7"
+    android:background="@color/background_light"
     tools:context=".ContactsFragment">
 
     <LinearLayout
@@ -15,33 +15,42 @@
         android:orientation="vertical">
 
         <!-- Header Section -->
-        <LinearLayout
-            android:id="@+id/llencabezadocontactos"
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#2E7D32"
-            android:orientation="vertical"
-            android:padding="20dp">
+            android:layout_margin="16dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="4dp">
 
-            <TextView
-                android:id="@+id/tvtitulodirectoriocontactos"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/llencabezadocontactos"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/contacts_title"
-                android:textColor="#FFFFFF"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:background="@drawable/bg_gradient_card"
+                android:orientation="vertical"
+                android:padding="20dp">
 
-            <TextView
-                android:id="@+id/tvcontadorcontactos"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/contacts_count_default"
-                android:textColor="#C8E6C9"
-                android:textSize="13sp" />
+                <TextView
+                    android:id="@+id/tvtitulodirectoriocontactos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/contacts_title"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/tvcontadorcontactos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/contacts_count_default"
+                    android:textColor="#D1FAE5"
+                    android:textSize="13sp" />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
 
         <!-- Contacts List -->
         <androidx.recyclerview.widget.RecyclerView
@@ -63,8 +72,8 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="24dp"
         android:contentDescription="@string/add_contact_desc"
-        android:src="@android:drawable/ic_input_add"
-        app:backgroundTint="#2E7D32"
-        app:tint="#FFFFFF" />
+        android:src="@drawable/ic_add"
+        app:backgroundTint="@color/primary"
+        app:tint="@color/white" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

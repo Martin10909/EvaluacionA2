@@ -5,7 +5,7 @@
     android:id="@+id/coordinatorraizmapa"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F7"
+    android:background="@color/background_light"
     tools:context=".MapActivity">
 
     <!-- Map View (org.osmdroid.views.MapView) -->
@@ -26,7 +26,8 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="12dp"
+            app:cardBackgroundColor="@color/surface_light"
+            app:cardCornerRadius="16dp"
             app:cardElevation="4dp">
 
             <LinearLayout
@@ -42,8 +43,10 @@
                     android:layout_height="40dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/back_map_desc"
-                    android:src="@android:drawable/ic_menu_revert"
-                    app:tint="#212121" />
+                    android:padding="8dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_arrow_back"
+                    app:tint="@color/text_primary" />
 
                 <LinearLayout
                     android:id="@+id/lltitulosmapa"
@@ -58,7 +61,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/map_title"
-                        android:textColor="#212121"
+                        android:textColor="@color/text_primary"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
@@ -67,7 +70,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/map_subtitle"
-                        android:textColor="#757575"
+                        android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
 
                 </LinearLayout>
@@ -78,7 +81,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/recenter_btn"
-                    android:textColor="#2E7D32" />
+                    android:textColor="@color/primary"
+                    app:icon="@drawable/ic_recenter"
+                    app:iconTint="@color/primary" />
 
             </LinearLayout>
 
@@ -134,7 +139,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_margin="16dp"
-        app:cardCornerRadius="16dp"
+        app:cardBackgroundColor="@color/surface_light"
+        app:cardCornerRadius="20dp"
         app:cardElevation="8dp">
 
         <LinearLayout
@@ -151,15 +157,22 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <ImageView
-                    android:id="@+id/imgiconomarcador"
+                <androidx.cardview.widget.CardView
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:background="#E8F5E9"
-                    android:contentDescription="@string/map_title"
-                    android:padding="8dp"
-                    android:src="@android:drawable/ic_menu_myplaces"
-                    app:tint="#2E7D32" />
+                    app:cardBackgroundColor="@color/primary_container"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp">
+
+                    <ImageView
+                        android:id="@+id/imgiconomarcador"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/map_title"
+                        android:src="@drawable/ic_location"
+                        app:tint="@color/primary" />
+                </androidx.cardview.widget.CardView>
 
                 <LinearLayout
                     android:id="@+id/lldetallesmarcador"
@@ -174,7 +187,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/marker_title_default"
-                        android:textColor="#212121"
+                        android:textColor="@color/text_primary"
                         android:textSize="15sp"
                         android:textStyle="bold" />
 
@@ -184,7 +197,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:text="@string/marker_sub_default"
-                        android:textColor="#757575"
+                        android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
 
                 </LinearLayout>
@@ -194,7 +207,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/marker_amount_default"
-                    android:textColor="#2E7D32"
+                    android:textColor="@color/primary"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -205,7 +218,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginVertical="12dp"
-                android:background="#E0E0E0" />
+                android:background="@color/divider" />
 
             <LinearLayout
                 android:id="@+id/llfilainferiormarcador"
@@ -220,7 +233,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/default_gps_coords"
-                    android:textColor="#757575"
+                    android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
 
                 <com.google.android.material.button.MaterialButton
@@ -229,8 +242,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/share_marker_btn"
-                    android:textColor="#2E7D32"
-                    app:strokeColor="#2E7D32" />
+                    android:textColor="@color/primary"
+                    app:icon="@drawable/ic_share"
+                    app:iconTint="@color/primary"
+                    app:strokeColor="@color/primary" />
 
             </LinearLayout>
 
