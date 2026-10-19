@@ -344,7 +344,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COL_COMPRA_ES_REALIZADA, compra.isEsRealizada() ? 1 : 0);
         values.put(COL_COMPRA_CONTACTO_ID, compra.getContactoId());
         values.put(COL_COMPRA_CATEGORIA, compra.getCategoria());
-        return db.insert(TABLA_COMPRAS, null, values);
+        long compraId = db.insert(TABLA_COMPRAS, null, values);
+
+        // Registrar también en movimientos para que aparezca en Transacciones Recientes como compra
+        ContentValues movValues = new ContentValues();
+        movValues.put(COL_MOV_CUENTA_ID, 1);
+        movValues.put(COL_MOV_TIPO, "egreso");
+        movValues.put(COL_MOV_MONTO, compra.getMonto());
+        movValues.put(COL_MOV_DESCRIPCION, "Compra: " + compra.getTitulo());
+        movValues.put(COL_MOV_FECHA, compra.getFecha() != null ? compra.getFecha() : "Hoy");
+        movValues.put(COL_MOV_LAT, compra.getLatitud() != null ? compra.getLatitud() : -33.4372);
+        movValues.put(COL_MOV_LNG, compra.getLongitud() != null ? compra.getLongitud() : -70.6506);
+        String cat = compra.getCategoria() != null && !compra.getCategoria().trim().isEmpty() ? compra.getCategoria() : "Compra";
+        movValues.put(COL_MOV_CATEGORIA, cat);
+        db.insert(TABLA_MOVIMIENTOS, null, movValues);
+
+        return compraId;
     }
 
     public List<CompraModel> obtenerComprasPorEstado(boolean esRealizada) {
@@ -414,6 +429,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         gastoValues.put(COL_GASTO_FECHA, fecha);
 
         long gastoId = db.insert(TABLA_GASTOS_COMPARTIDOS, null, gastoValues);
+
+        // Registrar también en movimientos para que aparezca en Transacciones Recientes como división de cuenta
+        ContentValues movValues = new ContentValues();
+        movValues.put(COL_MOV_CUENTA_ID, 1);
+        movValues.put(COL_MOV_TIPO, "egreso");
+        movValues.put(COL_MOV_MONTO, montoTotal);
+        movValues.put(COL_MOV_DESCRIPCION, "División de cuenta: " + concepto);
+        movValues.put(COL_MOV_FECHA, fecha != null ? fecha : "Hoy");
+        movValues.put(COL_MOV_LAT, -33.4372);
+        movValues.put(COL_MOV_LNG, -70.6506);
+        movValues.put(COL_MOV_CATEGORIA, "División de cuenta");
+        db.insert(TABLA_MOVIMIENTOS, null, movValues);
 
         if (listaItems != null) {
             for (String item : listaItems) {

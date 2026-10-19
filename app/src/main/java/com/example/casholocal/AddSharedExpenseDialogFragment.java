@@ -264,7 +264,11 @@ public class AddSharedExpenseDialogFragment extends DialogFragment {
             // Refrescar fragmento visible inmediatamente
             if (getParentFragment() instanceof SharedFragment) {
                 ((SharedFragment) getParentFragment()).cargarDatosReales();
-            } else if (getActivity() != null) {
+            } else if (getParentFragment() instanceof HomeFragment) {
+                ((HomeFragment) getParentFragment()).cargarDatosDesdeBaseDeDatos();
+            }
+
+            if (getActivity() != null) {
                 Fragment activeFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.contenedorfragmento);
                 if (activeFragment instanceof SharedFragment) {
                     ((SharedFragment) activeFragment).cargarDatosReales();

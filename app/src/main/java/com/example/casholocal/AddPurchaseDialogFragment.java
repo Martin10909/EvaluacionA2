@@ -199,10 +199,16 @@ public class AddPurchaseDialogFragment extends DialogFragment {
 
             if (getParentFragment() instanceof PurchasesFragment) {
                 ((PurchasesFragment) getParentFragment()).actualizarResumenYLista();
-            } else if (getActivity() != null) {
+            } else if (getParentFragment() instanceof HomeFragment) {
+                ((HomeFragment) getParentFragment()).cargarDatosDesdeBaseDeDatos();
+            }
+
+            if (getActivity() != null) {
                 Fragment activeFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.contenedorfragmento);
                 if (activeFragment instanceof PurchasesFragment) {
                     ((PurchasesFragment) activeFragment).actualizarResumenYLista();
+                } else if (activeFragment instanceof HomeFragment) {
+                    ((HomeFragment) activeFragment).cargarDatosDesdeBaseDeDatos();
                 }
             }
             dismiss();
