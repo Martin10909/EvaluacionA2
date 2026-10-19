@@ -5,7 +5,7 @@
     android:id="@+id/scrollnuevatransaccion"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/surface_light"
+    android:background="@drawable/bg_dialog_rounded"
     tools:context=".AddTransactionDialogFragment">
 
     <LinearLayout
@@ -47,6 +47,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:buttonTint="@color/primary"
                 android:checked="true"
                 android:text="@string/rb_expense_label"
                 android:textColor="@color/text_primary" />
@@ -56,6 +57,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:buttonTint="@color/primary"
                 android:text="@string/rb_income_label"
                 android:textColor="@color/text_primary" />
 
@@ -69,17 +71,22 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:hint="@string/amount_hint"
+            android:textColorHint="@color/text_secondary"
+            app:boxBackgroundColor="@color/surface_light"
             app:boxCornerRadiusBottomEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
-            app:boxCornerRadiusTopStart="12dp">
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="@color/primary"
+            app:hintTextColor="@color/primary">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etmonto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="numberDecimal"
-                android:textColor="@color/text_primary" />
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -98,8 +105,9 @@
             android:id="@+id/spcuentaasociada"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_marginTop="4dp"
-            android:background="@android:drawable/btn_dropdown" />
+            android:layout_marginTop="6dp"
+            android:background="@drawable/bg_quick_action"
+            android:paddingHorizontal="8dp" />
 
         <!-- Category Input -->
         <com.google.android.material.textfield.TextInputLayout
@@ -109,17 +117,22 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:hint="@string/category_hint"
+            android:textColorHint="@color/text_secondary"
+            app:boxBackgroundColor="@color/surface_light"
             app:boxCornerRadiusBottomEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
-            app:boxCornerRadiusTopStart="12dp">
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="@color/primary"
+            app:hintTextColor="@color/primary">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etcategoria"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="text"
-                android:textColor="@color/text_primary" />
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -131,17 +144,22 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:hint="@string/description_hint"
+            android:textColorHint="@color/text_secondary"
+            app:boxBackgroundColor="@color/surface_light"
             app:boxCornerRadiusBottomEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
-            app:boxCornerRadiusTopStart="12dp">
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="@color/primary"
+            app:hintTextColor="@color/primary">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etdescripcionnota"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textMultiLine"
-                android:textColor="@color/text_primary" />
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -207,15 +225,31 @@
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etnombrelugar"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:hint="@string/place_name_hint"
-                    android:inputType="text"
-                    android:textColor="@color/text_primary"
-                    android:textSize="13sp" />
+                    android:textColorHint="@color/text_secondary"
+                    app:boxBackgroundColor="@color/surface_light"
+                    app:boxCornerRadiusBottomEnd="8dp"
+                    app:boxCornerRadiusBottomStart="8dp"
+                    app:boxCornerRadiusTopEnd="8dp"
+                    app:boxCornerRadiusTopStart="8dp"
+                    app:boxStrokeColor="@color/primary"
+                    app:hintTextColor="@color/primary">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etnombrelugar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/text_secondary"
+                        android:textSize="13sp" />
+
+                </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>
 

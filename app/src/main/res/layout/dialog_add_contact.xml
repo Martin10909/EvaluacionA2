@@ -5,7 +5,7 @@
     android:id="@+id/llnuevocontactoraiz"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/surface_light"
+    android:background="@drawable/bg_dialog_rounded"
     android:orientation="vertical"
     android:padding="20dp"
     tools:context=".AddContactDialogFragment">
@@ -37,17 +37,22 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:hint="@string/contact_name_hint"
+        android:textColorHint="@color/text_secondary"
+        app:boxBackgroundColor="@color/surface_light"
         app:boxCornerRadiusBottomEnd="12dp"
         app:boxCornerRadiusBottomStart="12dp"
         app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusTopStart="12dp">
+        app:boxCornerRadiusTopStart="12dp"
+        app:boxStrokeColor="@color/primary"
+        app:hintTextColor="@color/primary">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etnombrecontactocompleto"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
-            android:textColor="@color/text_primary" />
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -59,17 +64,22 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:hint="@string/contact_phone_hint"
+        android:textColorHint="@color/text_secondary"
+        app:boxBackgroundColor="@color/surface_light"
         app:boxCornerRadiusBottomEnd="12dp"
         app:boxCornerRadiusBottomStart="12dp"
         app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusTopStart="12dp">
+        app:boxCornerRadiusTopStart="12dp"
+        app:boxStrokeColor="@color/primary"
+        app:hintTextColor="@color/primary">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/ettelefonowhatsapp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="phone"
-            android:textColor="@color/text_primary" />
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -81,17 +91,22 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:hint="@string/contact_email_hint"
+        android:textColorHint="@color/text_secondary"
+        app:boxBackgroundColor="@color/surface_light"
         app:boxCornerRadiusBottomEnd="12dp"
         app:boxCornerRadiusBottomStart="12dp"
         app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusTopStart="12dp">
+        app:boxCornerRadiusTopStart="12dp"
+        app:boxStrokeColor="@color/primary"
+        app:hintTextColor="@color/primary">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etcorreoelectronico"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textEmailAddress"
-            android:textColor="@color/text_primary" />
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -103,17 +118,22 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:hint="@string/contact_notes_hint"
+        android:textColorHint="@color/text_secondary"
+        app:boxBackgroundColor="@color/surface_light"
         app:boxCornerRadiusBottomEnd="12dp"
         app:boxCornerRadiusBottomStart="12dp"
         app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusTopStart="12dp">
+        app:boxCornerRadiusTopStart="12dp"
+        app:boxStrokeColor="@color/primary"
+        app:hintTextColor="@color/primary">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etnotasrelacion"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textMultiLine"
-            android:textColor="@color/text_primary" />
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

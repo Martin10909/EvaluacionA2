@@ -2,7 +2,6 @@ package com.example.casholocal;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -69,6 +68,12 @@ public class AddTransactionDialogFragment extends DialogFragment {
         // Constructor público vacío requerido
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_CashoLocal_Dialog);
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -132,8 +137,8 @@ public class AddTransactionDialogFragment extends DialogFragment {
             if (nombresCuentas.isEmpty()) {
                 nombresCuentas.add("Cuenta Principal");
             }
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, nombresCuentas);
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.spinner_item, nombresCuentas);
+            adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
             spcuentaasociada.setAdapter(adapter);
         }
     }

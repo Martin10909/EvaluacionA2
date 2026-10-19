@@ -71,6 +71,12 @@ public class AddSharedExpenseDialogFragment extends DialogFragment {
         // Constructor público vacío requerido
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_CashoLocal_Dialog);
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -138,10 +144,13 @@ public class AddSharedExpenseDialogFragment extends DialogFragment {
             }
 
             if (sppagador != null) {
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, opcionesPagador);
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.spinner_item, opcionesPagador);
+                adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
                 sppagador.setAdapter(adapter);
             }
+
+            int textColorPrimary = androidx.core.content.ContextCompat.getColor(getContext(), R.color.text_primary);
+            int primaryColor = androidx.core.content.ContextCompat.getColor(getContext(), R.color.primary);
 
             // Cargar lista de contactos participantes (sólo el primero marcado por defecto)
             if (llseleccionparticipantes != null) {
@@ -153,7 +162,8 @@ public class AddSharedExpenseDialogFragment extends DialogFragment {
                         ContactoModel contacto = listaContactosBaseDatos.get(i);
                         CheckBox chk = new CheckBox(getContext());
                         chk.setText(contacto.getNombre());
-                        chk.setTextColor(0xFF212121);
+                        chk.setTextColor(textColorPrimary);
+                        chk.setButtonTintList(android.content.res.ColorStateList.valueOf(primaryColor));
                         chk.setChecked(i == 0); // Sólo 1 marcado por defecto
                         llseleccionparticipantes.addView(chk);
                         listaCheckBoxesDinamicos.add(chk);
@@ -161,6 +171,8 @@ public class AddSharedExpenseDialogFragment extends DialogFragment {
                 } else {
                     if (chkcontacto1 != null) {
                         chkcontacto1.setText("Pablo");
+                        chkcontacto1.setTextColor(textColorPrimary);
+                        chkcontacto1.setButtonTintList(android.content.res.ColorStateList.valueOf(primaryColor));
                         chkcontacto1.setChecked(true);
                         llseleccionparticipantes.addView(chkcontacto1);
                         listaCheckBoxesDinamicos.add(chkcontacto1);
