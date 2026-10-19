@@ -1,23 +1,19 @@
 package com.example.casholocal;
 
-import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
@@ -29,10 +25,7 @@ import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputLayout;
 
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 
 public class PurchasesFragment extends Fragment {
 
@@ -58,7 +51,6 @@ public class PurchasesFragment extends Fragment {
     private DatabaseHelper dbHelper;
     private CompraAdapter compraAdapter;
     private boolean mostrandoRealizadas = true;
-    private String fechaSeleccionadaCompra = "Hoy";
 
     public PurchasesFragment() {
         // Constructor público vacío requerido
@@ -181,84 +173,10 @@ public class PurchasesFragment extends Fragment {
     }
 
     private void mostrarDialogoNuevaCompra() {
-        if (getContext() == null || dbHelper == null) return;
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle(mostrandoRealizadas ? "Registrar Nueva Compra" : "Planificar Compra Futura");
-
-        LinearLayout layout = new LinearLayout(getContext());
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(32, 16, 32, 16);
-
-        final EditText etTitulo = new EditText(getContext());
-        etTitulo.setHint("Nombre de la compra o producto");
-        layout.addView(etTitulo);
-
-        final EditText etMonto = new EditText(getContext());
-        etMonto.setHint("Monto estimado ($ CLP)");
-        etMonto.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        layout.addView(etMonto);
-
-        final EditText etFecha = new EditText(getContext());
-        etFecha.setHint("Fecha de compra (Toca para seleccionar)");
-        etFecha.setFocusable(false);
-        etFecha.setOnClickListener(v -> {
-            Calendar calendar = Calendar.getInstance();
-            DatePickerDialog dpd = new DatePickerDialog(getContext(), (view, year, month, dayOfMonth) -> {
-                fechaSeleccionadaCompra = String.format(Locale.getDefault(), "%02d/%02d/%d", dayOfMonth, month + 1, year);
-                etFecha.setText(fechaSeleccionadaCompra);
-            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-            dpd.show();
-        });
-        layout.addView(etFecha);
-
-        // Spinner para vincular un contacto
-        TextView tvContacto = new TextView(getContext());
-        tvContacto.setText("Vincular con Contacto (Opcional):");
-        tvContacto.setPadding(0, 12, 0, 4);
-        layout.addView(tvContacto);
-
-        final Spinner spContacto = new Spinner(getContext());
-        List<ContactoModel> contactos = dbHelper.obtenerContactos();
-        List<String> nombresContactos = new ArrayList<>();
-        nombresContactos.add("Sin contacto vinculado");
-        for (ContactoModel c : contactos) {
-            nombresContactos.add(c.getNombre());
+        if (getParentFragmentManager() != null) {
+            AddPurchaseDialogFragment dialog = AddPurchaseDialogFragment.newInstance(mostrandoRealizadas);
+            dialog.show(getParentFragmentManager(), "AddPurchaseDialog");
         }
-
-        ArrayAdapter<String> adapterContactos = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, nombresContactos);
-        adapterContactos.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spContacto.setAdapter(adapterContactos);
-        layout.addView(spContacto);
-
-        builder.setView(layout);
-
-        builder.setPositiveButton("Guardar", (dialog, which) -> {
-            String titulo = etTitulo.getText().toString().trim();
-            String montoStr = etMonto.getText().toString().trim();
-            double monto = 0;
-            try {
-                monto = Double.parseDouble(montoStr);
-            } catch (Exception ignored) {}
-
-            Long contactoIdSelected = null;
-            String contactoNombreSelected = null;
-            int pos = spContacto.getSelectedItemPosition();
-            if (pos > 0 && pos - 1 < contactos.size()) {
-                contactoIdSelected = contactos.get(pos - 1).getId();
-                contactoNombreSelected = contactos.get(pos - 1).getNombre();
-            }
-
-            if (!titulo.isEmpty() && monto > 0) {
-                dbHelper.insertarCompra(new CompraModel(0, titulo, monto, fechaSeleccionadaCompra, mostrandoRealizadas, contactoIdSelected, contactoNombreSelected, "Compras", -33.4372, -70.6506));
-                actualizarResumenYLista();
-                Toast.makeText(getContext(), "Compra guardada con éxito", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getContext(), "Ingresa un nombre y monto válido", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        builder.setNegativeButton("Cancelar", null);
-        builder.show();
     }
 
     @Override
