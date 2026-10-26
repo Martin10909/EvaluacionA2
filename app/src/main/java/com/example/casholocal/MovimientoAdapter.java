@@ -3,9 +3,11 @@ package com.example.casholocal;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -36,10 +38,16 @@ public class MovimientoAdapter extends RecyclerView.Adapter<MovimientoAdapter.Mo
         String signo = esIngreso ? "+" : "-";
         holder.tvmontotransaccion.setText(signo + FormatoMoneda.aPesoChileno(mov.getMonto()));
         
-        int colorGreen = androidx.core.content.ContextCompat.getColor(holder.itemView.getContext(), R.color.accent_green_text);
-        int colorRed = androidx.core.content.ContextCompat.getColor(holder.itemView.getContext(), R.color.accent_red_text);
+        int colorGreen = ContextCompat.getColor(holder.itemView.getContext(), R.color.accent_green_text);
+        int colorRed = ContextCompat.getColor(holder.itemView.getContext(), R.color.accent_red_text);
         
         holder.tvmontotransaccion.setTextColor(esIngreso ? colorGreen : colorRed);
+
+        // Icono normal de gasto o ingreso
+        if (holder.imgiconotransaccion != null) {
+            holder.imgiconotransaccion.setImageResource(esIngreso ? R.drawable.ic_income : R.drawable.ic_expense);
+            holder.imgiconotransaccion.setColorFilter(esIngreso ? colorGreen : colorRed);
+        }
 
         holder.tvcuentatransaccion.setText(mov.getFecha() != null ? mov.getFecha() : "Hoy");
         if (mov.getLatitud() != null && mov.getLongitud() != null) {
@@ -63,6 +71,7 @@ public class MovimientoAdapter extends RecyclerView.Adapter<MovimientoAdapter.Mo
     }
 
     static class MovimientoViewHolder extends RecyclerView.ViewHolder {
+        ImageView imgiconotransaccion;
         TextView tvcategoriatransaccion;
         TextView tvnotatransaccion;
         TextView tvmontotransaccion;
@@ -72,6 +81,7 @@ public class MovimientoAdapter extends RecyclerView.Adapter<MovimientoAdapter.Mo
 
         public MovimientoViewHolder(@NonNull View itemView) {
             super(itemView);
+            imgiconotransaccion = itemView.findViewById(R.id.imgiconotransaccion);
             tvcategoriatransaccion = itemView.findViewById(R.id.tvcategoriatransaccion);
             tvnotatransaccion = itemView.findViewById(R.id.tvnotatransaccion);
             tvmontotransaccion = itemView.findViewById(R.id.tvmontotransaccion);

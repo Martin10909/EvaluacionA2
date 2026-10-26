@@ -1,7 +1,10 @@
 package com.example.casholocal;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -11,9 +14,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -28,9 +34,13 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
+
+    private static final int REQUEST_LOCATION_PERMISSION = 1001;
 
     private CoordinatorLayout coordinatorraizmapa;
     private LinearLayout llencabezadomapa;
@@ -122,10 +132,97 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         try {
             this.googleMap.getUiSettings().setZoomControlsEnabled(true);
             this.googleMap.getUiSettings().setCompassEnabled(true);
+            this.googleMap.getUiSettings().setMyLocationButtonEnabled(true);
             this.googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(puntoInicial, 13f));
+
+            habilitarUbicacionUsuario();
+
+            // Mantener presionado para crear ícono / marcador en las coordenadas tocadas
+            this.googleMap.setOnMapLongClickListener(this::mostrarDialogoCrearMarcadorEnCoordenadas);
+
         } catch (Exception ignored) {}
 
         cargarDatos();
+    }
+
+    private void mostrarDialogoCrearMarcadorEnCoordenadas(LatLng latLng) {
+        if (latLng == null) return;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Nuevo Punto de Gasto / Ingreso");
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(32, 16, 32, 16);
+
+        final EditText etNombre = new EditText(this);
+        etNombre.setHint("Nombre del lugar o gasto (ej. Café)");
+        layout.addView(etNombre);
+
+        final EditText etMonto = new EditText(this);
+        etMonto.setHint("Monto ($ CLP)");
+        etMonto.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        layout.addView(etMonto);
+
+        final EditText etCat = new EditText(this);
+        etCat.setHint("Categoría (ej. Alimentación, Compras)");
+        layout.addView(etCat);
+
+        builder.setView(layout);
+
+        builder.setPositiveButton("Crear Ícono en Mapa", (dialog, which) -> {
+            String nombre = etNombre.getText().toString().trim();
+            String montoStr = etMonto.getText().toString().trim();
+            String cat = etCat.getText().toString().trim();
+
+            if (nombre.isEmpty()) nombre = "Gasto Ubicación";
+            if (cat.isEmpty()) cat = "General";
+
+            double monto = 0;
+            try {
+                monto = Double.parseDouble(montoStr);
+            } catch (Exception ignored) {}
+
+            if (dbHelper != null) {
+                Calendar c = Calendar.getInstance();
+                String fechaHoy = String.format(Locale.getDefault(), "%02d/%02d/%d", c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.MONTH) + 1, c.get(Calendar.YEAR));
+                dbHelper.insertarMovimiento(new MovimientoModel(0, 1, "egreso", monto, nombre, fechaHoy, latLng.latitude, latLng.longitude, cat));
+                cargarDatos();
+                Toast.makeText(this, "Ícono y marcador creado en el mapa", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        builder.setNegativeButton("Cancelar", null);
+        builder.show();
+    }
+
+    private void habilitarUbicacionUsuario() {
+        if (googleMap == null) return;
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            try {
+                googleMap.setMyLocationEnabled(true);
+            } catch (SecurityException ignored) {}
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                    REQUEST_LOCATION_PERMISSION);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_LOCATION_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (googleMap != null) {
+                    try {
+                        googleMap.setMyLocationEnabled(true);
+                    } catch (SecurityException ignored) {}
+                }
+            } else {
+                Toast.makeText(this, "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void cargarDatos() {
@@ -221,7 +318,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         if (btnrecentrarmapa != null) {
             btnrecentrarmapa.setOnClickListener(v -> {
                 if (googleMap != null) {
-                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(puntoInicial, 14f));
+                    try {
+                        if (googleMap.getMyLocation() != null) {
+                            LatLng miUbicacion = new LatLng(googleMap.getMyLocation().getLatitude(), googleMap.getMyLocation().getLongitude());
+                            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(miUbicacion, 16f));
+                            Toast.makeText(this, "Navegando a tu ubicación actual", Toast.LENGTH_SHORT).show();
+                        } else {
+                            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(puntoInicial, 15f));
+                            Toast.makeText(this, "Centrando mapa en transacciones", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (Exception e) {
+                        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(puntoInicial, 15f));
+                    }
                 }
             });
         }
