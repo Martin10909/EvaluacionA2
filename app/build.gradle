@@ -2,6 +2,15 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
+import java.io.FileInputStream
+import java.util.Properties
+
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localProperties.load(new FileInputStream(localPropertiesFile))
+}
+
 android {
     namespace 'com.example.casholocal'
     compileSdk {
@@ -16,6 +25,8 @@ android {
         targetSdk 36
         versionCode 1
         versionName "1.0"
+
+        manifestPlaceholders = [MAPS_API_KEY: localProperties.getProperty('MAPS_API_KEY', 'TU_API_KEY_AQUI')]
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -42,6 +53,7 @@ dependencies {
     implementation libs.fragment
     implementation libs.material
     implementation libs.recyclerview
+    implementation 'com.google.android.gms:play-services-maps:19.0.0'
     implementation 'org.osmdroid:osmdroid-android:6.1.18'
     implementation 'androidx.biometric:biometric:1.1.0'
     testImplementation libs.junit

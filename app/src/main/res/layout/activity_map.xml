@@ -8,9 +8,10 @@
     android:background="@color/background_light"
     tools:context=".MapActivity">
 
-    <!-- Map View (org.osmdroid.views.MapView) -->
-    <org.osmdroid.views.MapView
-        android:id="@+id/vistemapa"
+    <!-- Google Maps Fragment -->
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/mapafragmentogotable"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

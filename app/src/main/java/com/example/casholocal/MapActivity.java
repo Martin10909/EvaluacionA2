@@ -1,7 +1,6 @@
 package com.example.casholocal;
 
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -11,28 +10,29 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
-import org.osmdroid.config.Configuration;
-import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase;
-import org.osmdroid.tileprovider.tilesource.XYTileSource;
-import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.Marker;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapActivity extends AppCompatActivity {
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private CoordinatorLayout coordinatorraizmapa;
-    private MapView vistemapa;
     private LinearLayout llencabezadomapa;
     private ImageButton btnatrasmapa;
     private LinearLayout lltitulosmapa;
@@ -59,17 +59,14 @@ public class MapActivity extends AppCompatActivity {
     private FrameLayout flcapacargamapa;
     private ProgressBar pbcargando;
 
+    private GoogleMap googleMap;
     private DatabaseHelper dbHelper;
     private List<MovimientoModel> listaMovimientos = new ArrayList<>();
-    private GeoPoint puntoInicial = new GeoPoint(-33.4372, -70.6506);
+    private LatLng puntoInicial = new LatLng(-33.4372, -70.6506);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Configuration.getInstance().setUserAgentValue(getPackageName());
-        Configuration.getInstance().load(getApplicationContext(), PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
-
         setContentView(R.layout.activity_map);
 
         dbHelper = new DatabaseHelper(this);
@@ -77,12 +74,10 @@ public class MapActivity extends AppCompatActivity {
         initViews();
         configurarMapa();
         configurarListeners();
-        cargarDatos();
     }
 
     private void initViews() {
         coordinatorraizmapa = findViewById(R.id.coordinatorraizmapa);
-        vistemapa = findViewById(R.id.vistemapa);
         llencabezadomapa = findViewById(R.id.llencabezadomapa);
         btnatrasmapa = findViewById(R.id.btnatrasmapa);
         lltitulosmapa = findViewById(R.id.lltitulosmapa);
@@ -111,23 +106,21 @@ public class MapActivity extends AppCompatActivity {
     }
 
     private void configurarMapa() {
-        if (vistemapa != null) {
-            OnlineTileSourceBase fuenteMapaLibre = new XYTileSource(
-                    "CartoDB_Positron",
-                    0, 19, 256, ".png",
-                    new String[] {
-                            "https://a.basemaps.cartocdn.com/light_all/",
-                            "https://b.basemaps.cartocdn.com/light_all/",
-                            "https://c.basemaps.cartocdn.com/light_all/"
-                    },
-                    "OpenStreetMap contributors, CARTO"
-            );
-
-            vistemapa.setTileSource(fuenteMapaLibre);
-            vistemapa.setMultiTouchControls(true);
-            vistemapa.getController().setZoom(15.0);
-            vistemapa.getController().setCenter(puntoInicial);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapafragmentogotable);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(this);
         }
+    }
+
+    @Override
+    public void onMapReady(@NonNull GoogleMap map) {
+        this.googleMap = map;
+        this.googleMap.getUiSettings().setZoomControlsEnabled(true);
+        this.googleMap.getUiSettings().setCompassEnabled(true);
+
+        this.googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(puntoInicial, 13f));
+
+        cargarDatos();
     }
 
     private void cargarDatos() {
@@ -138,9 +131,9 @@ public class MapActivity extends AppCompatActivity {
     }
 
     private void mostrarMarcadores(String filtro) {
-        if (vistemapa == null) return;
+        if (googleMap == null) return;
 
-        vistemapa.getOverlays().clear();
+        googleMap.clear();
 
         boolean primerMarcadorFijado = false;
 
@@ -160,20 +153,19 @@ public class MapActivity extends AppCompatActivity {
                 lng = -70.6506;
             }
 
-            GeoPoint pos = new GeoPoint(lat, lng);
+            LatLng pos = new LatLng(lat, lng);
+            boolean esIngreso = "ingreso".equalsIgnoreCase(mov.getTipo());
 
-            Marker marcador = new Marker(vistemapa);
-            marcador.setPosition(pos);
-            marcador.setTitle(mov.getDescripcion());
-            marcador.setSnippet(FormatoMoneda.aPesoChileno(mov.getMonto()));
+            MarkerOptions options = new MarkerOptions()
+                    .position(pos)
+                    .title(mov.getDescripcion())
+                    .snippet(FormatoMoneda.aPesoChileno(mov.getMonto()))
+                    .icon(BitmapDescriptorFactory.defaultMarker(esIngreso ? BitmapDescriptorFactory.HUE_GREEN : BitmapDescriptorFactory.HUE_RED));
 
-            final MovimientoModel movActual = mov;
-            marcador.setOnMarkerClickListener((marker, mapView) -> {
-                mostrarDetalleMarcador(movActual);
-                return true;
-            });
-
-            vistemapa.getOverlays().add(marcador);
+            Marker marker = googleMap.addMarker(options);
+            if (marker != null) {
+                marker.setTag(mov);
+            }
 
             if (!primerMarcadorFijado) {
                 mostrarDetalleMarcador(mov);
@@ -182,7 +174,13 @@ public class MapActivity extends AppCompatActivity {
             }
         }
 
-        vistemapa.invalidate();
+        googleMap.setOnMarkerClickListener(marker -> {
+            Object tag = marker.getTag();
+            if (tag instanceof MovimientoModel) {
+                mostrarDetalleMarcador((MovimientoModel) tag);
+            }
+            return false;
+        });
     }
 
     private void mostrarDetalleMarcador(MovimientoModel mov) {
@@ -217,8 +215,8 @@ public class MapActivity extends AppCompatActivity {
 
         if (btnrecentrarmapa != null) {
             btnrecentrarmapa.setOnClickListener(v -> {
-                if (vistemapa != null) {
-                    vistemapa.getController().animateTo(puntoInicial);
+                if (googleMap != null) {
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(puntoInicial, 14f));
                 }
             });
         }
@@ -243,25 +241,8 @@ public class MapActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (vistemapa != null) {
-            vistemapa.onResume();
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (vistemapa != null) {
-            vistemapa.onPause();
-        }
-    }
-
     // Getters
     public CoordinatorLayout getCoordinatorraizmapa() { return coordinatorraizmapa; }
-    public MapView getVistemapa() { return vistemapa; }
     public LinearLayout getLlencabezadomapa() { return llencabezadomapa; }
     public ImageButton getBtnatrasmapa() { return btnatrasmapa; }
     public LinearLayout getLltitulosmapa() { return lltitulosmapa; }
