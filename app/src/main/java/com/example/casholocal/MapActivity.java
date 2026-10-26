@@ -2,13 +2,9 @@ package com.example.casholocal;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -17,23 +13,18 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.Priority;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -41,13 +32,15 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
+
+    private static final int REQUEST_LOCATION_PERMISSION = 1001;
 
     private CoordinatorLayout coordinatorraizmapa;
     private LinearLayout llencabezadomapa;
@@ -80,11 +73,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private DatabaseHelper dbHelper;
     private List<MovimientoModel> listaMovimientos = new ArrayList<>();
     private LatLng puntoInicial = new LatLng(-33.4372, -70.6506);
-    private LatLng ubicacionUsuario = null;
-    private Marker marcadorTemporal = null;
-
-    private FusedLocationProviderClient fusedLocationClient;
-    private ActivityResultLauncher<String[]> locationPermissionLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,21 +80,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_map);
 
         dbHelper = new DatabaseHelper(this);
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
-        locationPermissionLauncher = registerForActivityResult(
-                new ActivityResultContracts.RequestMultiplePermissions(),
-                result -> {
-                    Boolean fineGranted = result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false);
-                    Boolean coarseGranted = result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false);
-                    if ((fineGranted != null && fineGranted) || (coarseGranted != null && coarseGranted)) {
-                        habilitarUbicacionEnMapa();
-                        obtenerUbicacionActualUsuario(true);
-                    } else {
-                        Toast.makeText(this, "Permiso de ubicación no concedido", Toast.LENGTH_SHORT).show();
-                    }
-                }
-        );
 
         initViews();
         configurarMapa();
@@ -159,180 +132,104 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         try {
             this.googleMap.getUiSettings().setZoomControlsEnabled(true);
             this.googleMap.getUiSettings().setCompassEnabled(true);
+            this.googleMap.getUiSettings().setMyLocationButtonEnabled(true);
             this.googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(puntoInicial, 13f));
+
+            habilitarUbicacionUsuario();
+
+            // Mantener presionado para crear ícono / marcador en las coordenadas tocadas
+            this.googleMap.setOnMapLongClickListener(this::mostrarDialogoCrearMarcadorEnCoordenadas);
+
         } catch (Exception ignored) {}
 
-        configurarEventosMapa();
-        verificarPermisosYUbicacion();
         cargarDatos();
     }
 
-    private void configurarEventosMapa() {
+    private void mostrarDialogoCrearMarcadorEnCoordenadas(LatLng latLng) {
+        if (latLng == null) return;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Nuevo Punto de Gasto / Ingreso");
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(32, 16, 32, 16);
+
+        final EditText etNombre = new EditText(this);
+        etNombre.setHint("Nombre del lugar o gasto (ej. Café)");
+        layout.addView(etNombre);
+
+        final EditText etMonto = new EditText(this);
+        etMonto.setHint("Monto ($ CLP)");
+        etMonto.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        layout.addView(etMonto);
+
+        final EditText etCat = new EditText(this);
+        etCat.setHint("Categoría (ej. Alimentación, Compras)");
+        layout.addView(etCat);
+
+        builder.setView(layout);
+
+        builder.setPositiveButton("Crear Ícono en Mapa", (dialog, which) -> {
+            String nombre = etNombre.getText().toString().trim();
+            String montoStr = etMonto.getText().toString().trim();
+            String cat = etCat.getText().toString().trim();
+
+            if (nombre.isEmpty()) nombre = "Gasto Ubicación";
+            if (cat.isEmpty()) cat = "General";
+
+            double monto = 0;
+            try {
+                monto = Double.parseDouble(montoStr);
+            } catch (Exception ignored) {}
+
+            if (dbHelper != null) {
+                Calendar c = Calendar.getInstance();
+                String fechaHoy = String.format(Locale.getDefault(), "%02d/%02d/%d", c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.MONTH) + 1, c.get(Calendar.YEAR));
+                dbHelper.insertarMovimiento(new MovimientoModel(0, 1, "egreso", monto, nombre, fechaHoy, latLng.latitude, latLng.longitude, cat));
+                cargarDatos();
+                Toast.makeText(this, "Ícono y marcador creado en el mapa", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        builder.setNegativeButton("Cancelar", null);
+        builder.show();
+    }
+
+    private void habilitarUbicacionUsuario() {
         if (googleMap == null) return;
-
-        // Creación de un nuevo punto al hacer clic sobre el mapa
-        googleMap.setOnMapClickListener(latLng -> {
-            if (marcadorTemporal != null) {
-                marcadorTemporal.remove();
-            }
-
-            marcadorTemporal = googleMap.addMarker(new MarkerOptions()
-                    .position(latLng)
-                    .title("Punto Seleccionado")
-                    .snippet("Toca para registrar gasto/ingreso")
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-
-            if (marcadorTemporal != null) {
-                marcadorTemporal.showInfoWindow();
-            }
-
-            mostrarDialogoConfirmarCreacionPunto(latLng);
-        });
-
-        // Clic en marcadores existentes
-        googleMap.setOnMarkerClickListener(marker -> {
-            Object tag = marker.getTag();
-            if (tag instanceof MovimientoModel) {
-                mostrarDetalleMarcador((MovimientoModel) tag);
-            }
-            return false;
-        });
-    }
-
-    private void mostrarDialogoConfirmarCreacionPunto(LatLng latLng) {
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Nuevo Punto en el Mapa")
-                .setMessage(String.format(Locale.getDefault(), "¿Deseas registrar un nuevo gasto o ingreso en esta ubicación?\n\nLat: %.4f, Lng: %.4f", latLng.latitude, latLng.longitude))
-                .setPositiveButton("Registrar", (dialog, which) -> {
-                    abrirDialogoNuevoMovimiento(latLng.latitude, latLng.longitude);
-                })
-                .setNegativeButton("Cancelar", (dialog, which) -> {
-                    if (marcadorTemporal != null) {
-                        marcadorTemporal.remove();
-                        marcadorTemporal = null;
-                    }
-                })
-                .show();
-    }
-
-    private void abrirDialogoNuevoMovimiento(double lat, double lng) {
-        AddTransactionDialogFragment dialog = AddTransactionDialogFragment.newInstance(lat, lng);
-        dialog.setOnTransactionSavedListener(() -> {
-            if (marcadorTemporal != null) {
-                marcadorTemporal.remove();
-                marcadorTemporal = null;
-            }
-            cargarDatos();
-            if (googleMap != null) {
-                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), 15f));
-            }
-        });
-        dialog.show(getSupportFragmentManager(), "AddTransactionDialogFragment");
-    }
-
-    private void verificarPermisosYUbicacion() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            habilitarUbicacionEnMapa();
-            obtenerUbicacionActualUsuario(true);
-        } else {
-            locationPermissionLauncher.launch(new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-            });
-        }
-    }
-
-    private void habilitarUbicacionEnMapa() {
-        if (googleMap == null) return;
-        try {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                    || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            try {
                 googleMap.setMyLocationEnabled(true);
-                googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+            } catch (SecurityException ignored) {}
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                    REQUEST_LOCATION_PERMISSION);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_LOCATION_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (googleMap != null) {
+                    try {
+                        googleMap.setMyLocationEnabled(true);
+                    } catch (SecurityException ignored) {}
+                }
+            } else {
+                Toast.makeText(this, "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show();
             }
-        } catch (SecurityException ignored) {}
+        }
     }
 
-    private void obtenerUbicacionActualUsuario(boolean animarCamara) {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-
-        if (fusedLocationClient == null) {
-            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        }
-
-        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
-                .addOnSuccessListener(location -> {
-                    if (location != null) {
-                        ubicacionUsuario = new LatLng(location.getLatitude(), location.getLongitude());
-                        puntoInicial = ubicacionUsuario;
-                        if (animarCamara && googleMap != null) {
-                            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ubicacionUsuario, 15f));
-                        }
-                    } else {
-                        fusedLocationClient.getLastLocation().addOnSuccessListener(lastLoc -> {
-                            if (lastLoc != null) {
-                                ubicacionUsuario = new LatLng(lastLoc.getLatitude(), lastLoc.getLongitude());
-                                puntoInicial = ubicacionUsuario;
-                                if (animarCamara && googleMap != null) {
-                                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ubicacionUsuario, 15f));
-                                }
-                            }
-                        });
-                    }
-                });
-    }
-
-    public void cargarDatos() {
+    private void cargarDatos() {
         if (dbHelper != null) {
             listaMovimientos = dbHelper.obtenerMovimientos("");
             mostrarMarcadores("todos");
         }
-    }
-
-    private BitmapDescriptor crearIconoMarcadorPersonalizado(boolean esIngreso) {
-        int ancho = 96;
-        int alto = 110;
-        Bitmap bitmap = Bitmap.createBitmap(ancho, alto, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        int colorFondo = esIngreso ? 0xFF2E7D32 : 0xFFC62828;
-        paint.setColor(colorFondo);
-
-        // Triángulo inferior
-        Path path = new Path();
-        path.moveTo(ancho / 2f - 18, 70);
-        path.lineTo(ancho / 2f + 18, 70);
-        path.lineTo(ancho / 2f, alto);
-        path.close();
-        canvas.drawPath(path, paint);
-
-        // Círculo principal
-        canvas.drawCircle(ancho / 2f, 44, 40, paint);
-
-        // Borde blanco
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setColor(0xFFFFFFFF);
-        paint.setStrokeWidth(4);
-        canvas.drawCircle(ancho / 2f, 44, 38, paint);
-
-        // Dibujar el icono vectorial
-        Drawable drawable = ContextCompat.getDrawable(this, esIngreso ? R.drawable.ic_income : R.drawable.ic_expense);
-        if (drawable != null) {
-            drawable.mutate();
-            drawable.setTint(0xFFFFFFFF);
-            int iconSize = 46;
-            int left = (ancho - iconSize) / 2;
-            int top = (88 - iconSize) / 2;
-            drawable.setBounds(left, top, left + iconSize, top + iconSize);
-            drawable.draw(canvas);
-        }
-
-        return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
     private void mostrarMarcadores(String filtro) {
@@ -365,8 +262,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     .position(pos)
                     .title(mov.getDescripcion())
                     .snippet(FormatoMoneda.aPesoChileno(mov.getMonto()))
-                    .icon(crearIconoMarcadorPersonalizado(esIngreso))
-                    .anchor(0.5f, 1.0f);
+                    .icon(BitmapDescriptorFactory.defaultMarker(esIngreso ? BitmapDescriptorFactory.HUE_GREEN : BitmapDescriptorFactory.HUE_RED));
 
             Marker marker = googleMap.addMarker(options);
             if (marker != null) {
@@ -375,23 +271,22 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
             if (!primerMarcadorFijado) {
                 mostrarDetalleMarcador(mov);
-                if (ubicacionUsuario == null) {
-                    puntoInicial = pos;
-                }
+                puntoInicial = pos;
                 primerMarcadorFijado = true;
             }
         }
+
+        googleMap.setOnMarkerClickListener(marker -> {
+            Object tag = marker.getTag();
+            if (tag instanceof MovimientoModel) {
+                mostrarDetalleMarcador((MovimientoModel) tag);
+            }
+            return false;
+        });
     }
 
     private void mostrarDetalleMarcador(MovimientoModel mov) {
         if (mov == null) return;
-
-        boolean esIngreso = "ingreso".equalsIgnoreCase(mov.getTipo());
-
-        if (imgiconomarcador != null) {
-            imgiconomarcador.setImageResource(esIngreso ? R.drawable.ic_income : R.drawable.ic_expense);
-            imgiconomarcador.setColorFilter(esIngreso ? 0xFF2E7D32 : 0xFFC62828);
-        }
 
         if (tvtitulomarcador != null) {
             tvtitulomarcador.setText(mov.getDescripcion());
@@ -401,7 +296,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
         if (tvmontomarcador != null) {
             tvmontomarcador.setText(FormatoMoneda.aPesoChileno(mov.getMonto()));
-            tvmontomarcador.setTextColor(esIngreso ? 0xFF2E7D32 : 0xFFC62828);
+            if ("ingreso".equalsIgnoreCase(mov.getTipo())) {
+                tvmontomarcador.setTextColor(0xFF2E7D32);
+            } else {
+                tvmontomarcador.setTextColor(0xFFC62828);
+            }
         }
         if (tvcoordenadasmarcador != null) {
             tvcoordenadasmarcador.setText("GPS: " + mov.getLatitud() + ", " + mov.getLongitud());
@@ -418,10 +317,19 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         if (btnrecentrarmapa != null) {
             btnrecentrarmapa.setOnClickListener(v -> {
-                obtenerUbicacionActualUsuario(true);
                 if (googleMap != null) {
-                    LatLng destino = ubicacionUsuario != null ? ubicacionUsuario : puntoInicial;
-                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(destino, 15f));
+                    try {
+                        if (googleMap.getMyLocation() != null) {
+                            LatLng miUbicacion = new LatLng(googleMap.getMyLocation().getLatitude(), googleMap.getMyLocation().getLongitude());
+                            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(miUbicacion, 16f));
+                            Toast.makeText(this, "Navegando a tu ubicación actual", Toast.LENGTH_SHORT).show();
+                        } else {
+                            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(puntoInicial, 15f));
+                            Toast.makeText(this, "Centrando mapa en transacciones", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (Exception e) {
+                        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(puntoInicial, 15f));
+                    }
                 }
             });
         }
