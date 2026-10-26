@@ -23,6 +23,14 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.app.ActivityCompat;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -60,6 +68,18 @@ public class AddTransactionDialogFragment extends DialogFragment {
     private MaterialButton btncancelarmovimiento;
     private MaterialButton btnguardarmovimiento;
 
+    public interface OnTransactionSavedListener {
+        void onTransactionSaved();
+    }
+
+    private static final String ARG_LAT = "arg_lat";
+    private static final String ARG_LNG = "arg_lng";
+
+    private Double latitudSeleccionada = null;
+    private Double longitudSeleccionada = null;
+    private OnTransactionSavedListener listener;
+    private ActivityResultLauncher<String[]> requestLocationPermissionLauncher;
+
     private DatabaseHelper dbHelper;
     private List<CuentaModel> listaCuentas = new ArrayList<>();
     private String fechaSeleccionada = "Hoy";
@@ -68,10 +88,45 @@ public class AddTransactionDialogFragment extends DialogFragment {
         // Constructor público vacío requerido
     }
 
+    public static AddTransactionDialogFragment newInstance(@Nullable Double lat, @Nullable Double lng) {
+        AddTransactionDialogFragment fragment = new AddTransactionDialogFragment();
+        if (lat != null && lng != null) {
+            Bundle args = new Bundle();
+            args.putDouble(ARG_LAT, lat);
+            args.putDouble(ARG_LNG, lng);
+            fragment.setArguments(args);
+        }
+        return fragment;
+    }
+
+    public void setOnTransactionSavedListener(OnTransactionSavedListener listener) {
+        this.listener = listener;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_CashoLocal_Dialog);
+
+        if (getArguments() != null) {
+            if (getArguments().containsKey(ARG_LAT) && getArguments().containsKey(ARG_LNG)) {
+                latitudSeleccionada = getArguments().getDouble(ARG_LAT);
+                longitudSeleccionada = getArguments().getDouble(ARG_LNG);
+            }
+        }
+
+        requestLocationPermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestMultiplePermissions(),
+                result -> {
+                    Boolean fineGranted = result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false);
+                    Boolean coarseGranted = result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false);
+                    if ((fineGranted != null && fineGranted) || (coarseGranted != null && coarseGranted)) {
+                        capturarUbicacionReal();
+                    } else {
+                        Toast.makeText(getContext(), "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
     }
 
     @Nullable
@@ -79,6 +134,10 @@ public class AddTransactionDialogFragment extends DialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_add_transaction, container, false);
         initViews(view);
+
+        if (latitudSeleccionada != null && longitudSeleccionada != null && tvcoordenadasgps != null) {
+            tvcoordenadasgps.setText(String.format(Locale.getDefault(), "GPS: %.4f, %.4f (Mapa)", latitudSeleccionada, longitudSeleccionada));
+        }
 
         if (getContext() != null) {
             dbHelper = new DatabaseHelper(getContext());
@@ -164,12 +223,7 @@ public class AddTransactionDialogFragment extends DialogFragment {
         }
 
         if (btncapturargps != null) {
-            btncapturargps.setOnClickListener(v -> {
-                if (tvcoordenadasgps != null) {
-                    tvcoordenadasgps.setText("GPS: -33.4372, -70.6506 (Fijado)");
-                }
-                Toast.makeText(getContext(), "Ubicación GPS registrada correctamente", Toast.LENGTH_SHORT).show();
-            });
+            btncapturargps.setOnClickListener(v -> capturarUbicacionReal());
         }
 
         if (btncancelarmovimiento != null) {
@@ -182,6 +236,65 @@ public class AddTransactionDialogFragment extends DialogFragment {
                 guardarMovimiento();
             });
         }
+    }
+
+    private void capturarUbicacionReal() {
+        if (getContext() == null) return;
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestLocationPermissionLauncher.launch(new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+            });
+            return;
+        }
+
+        if (tvcoordenadasgps != null) {
+            tvcoordenadasgps.setText("Obteniendo GPS...");
+        }
+
+        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+                .addOnSuccessListener(location -> {
+                    if (location != null) {
+                        latitudSeleccionada = location.getLatitude();
+                        longitudSeleccionada = location.getLongitude();
+                        if (tvcoordenadasgps != null) {
+                            tvcoordenadasgps.setText(String.format(Locale.getDefault(), "GPS: %.4f, %.4f (Actual)", latitudSeleccionada, longitudSeleccionada));
+                        }
+                        if (getContext() != null) {
+                            Toast.makeText(getContext(), "Ubicación GPS obtenida correctamente", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        fusedLocationClient.getLastLocation().addOnSuccessListener(lastLoc -> {
+                            if (lastLoc != null) {
+                                latitudSeleccionada = lastLoc.getLatitude();
+                                longitudSeleccionada = lastLoc.getLongitude();
+                                if (tvcoordenadasgps != null) {
+                                    tvcoordenadasgps.setText(String.format(Locale.getDefault(), "GPS: %.4f, %.4f (Última conocida)", latitudSeleccionada, longitudSeleccionada));
+                                }
+                                if (getContext() != null) {
+                                    Toast.makeText(getContext(), "Ubicación GPS obtenida", Toast.LENGTH_SHORT).show();
+                                }
+                            } else {
+                                if (tvcoordenadasgps != null) {
+                                    tvcoordenadasgps.setText("No se pudo obtener señal GPS");
+                                }
+                                if (getContext() != null) {
+                                    Toast.makeText(getContext(), "Activa tu ubicación o GPS", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (tvcoordenadasgps != null) {
+                        tvcoordenadasgps.setText("Error GPS");
+                    }
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void mostrarSelectorFecha() {
@@ -229,12 +342,21 @@ public class AddTransactionDialogFragment extends DialogFragment {
             }
         }
 
+        double latFinal = latitudSeleccionada != null ? latitudSeleccionada : -33.4372;
+        double lngFinal = longitudSeleccionada != null ? longitudSeleccionada : -70.6506;
+
         if (dbHelper != null) {
-            dbHelper.insertarMovimiento(new MovimientoModel(0, cuentaId, tipo, monto, descripcion, fechaSeleccionada, -33.4372, -70.6506, categoria));
+            dbHelper.insertarMovimiento(new MovimientoModel(0, cuentaId, tipo, monto, descripcion, fechaSeleccionada, latFinal, lngFinal, categoria));
             Toast.makeText(getContext(), (esIngreso ? "Ingreso" : "Gasto") + " guardado con éxito", Toast.LENGTH_SHORT).show();
+
+            if (listener != null) {
+                listener.onTransactionSaved();
+            }
 
             if (getParentFragment() instanceof HomeFragment) {
                 ((HomeFragment) getParentFragment()).cargarDatosDesdeBaseDeDatos();
+            } else if (getActivity() instanceof MapActivity) {
+                ((MapActivity) getActivity()).cargarDatos();
             } else if (getActivity() != null) {
                 Fragment activeFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.contenedorfragmento);
                 if (activeFragment instanceof HomeFragment) {
