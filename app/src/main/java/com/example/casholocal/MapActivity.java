@@ -106,19 +106,24 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     private void configurarMapa() {
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapafragmentogotable);
-        if (mapFragment != null) {
-            mapFragment.getMapAsync(this);
+        try {
+            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapafragmentogotable);
+            if (mapFragment != null) {
+                mapFragment.getMapAsync(this);
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "Iniciando servicio de mapas...", Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
     public void onMapReady(@NonNull GoogleMap map) {
         this.googleMap = map;
-        this.googleMap.getUiSettings().setZoomControlsEnabled(true);
-        this.googleMap.getUiSettings().setCompassEnabled(true);
-
-        this.googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(puntoInicial, 13f));
+        try {
+            this.googleMap.getUiSettings().setZoomControlsEnabled(true);
+            this.googleMap.getUiSettings().setCompassEnabled(true);
+            this.googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(puntoInicial, 13f));
+        } catch (Exception ignored) {}
 
         cargarDatos();
     }
