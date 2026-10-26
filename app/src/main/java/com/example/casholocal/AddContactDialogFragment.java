@@ -104,6 +104,11 @@ public class AddContactDialogFragment extends DialogFragment {
 
                     if (getParentFragment() instanceof ContactsFragment) {
                         ((ContactsFragment) getParentFragment()).cargarContactosReales();
+                    } else if (getActivity() != null) {
+                        Fragment activeFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.contenedorfragmento);
+                        if (activeFragment instanceof ContactsFragment) {
+                            ((ContactsFragment) activeFragment).cargarContactosReales();
+                        }
                     }
 
                     dismiss();

@@ -215,7 +215,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String desc = cursor.getColumnCount() > 5 && !cursor.isNull(5) ? cursor.getString(5) : "Sin descripción";
                 String fecha = cursor.getColumnCount() > 6 && !cursor.isNull(6) ? cursor.getString(6) : "Hoy";
 
-                lista.add(new CuentaModel(id, nombre, tipo, saldoInicial, moneda, desc, fecha));
+                double saldoActual = saldoInicial;
+                Cursor cIngresos = db.rawQuery("SELECT SUM(" + COL_MOV_MONTO + ") FROM " + TABLA_MOVIMIENTOS + " WHERE " + COL_MOV_CUENTA_ID + " = ? AND " + COL_MOV_TIPO + " = 'ingreso'", new String[]{String.valueOf(id)});
+                if (cIngresos.moveToFirst()) {
+                    saldoActual += cIngresos.getDouble(0);
+                }
+                cIngresos.close();
+
+                Cursor cEgresos = db.rawQuery("SELECT SUM(" + COL_MOV_MONTO + ") FROM " + TABLA_MOVIMIENTOS + " WHERE " + COL_MOV_CUENTA_ID + " = ? AND " + COL_MOV_TIPO + " = 'egreso'", new String[]{String.valueOf(id)});
+                if (cEgresos.moveToFirst()) {
+                    saldoActual -= cEgresos.getDouble(0);
+                }
+                cEgresos.close();
+
+                lista.add(new CuentaModel(id, nombre, tipo, saldoActual, moneda, desc, fecha));
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -346,18 +359,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COL_COMPRA_CATEGORIA, compra.getCategoria());
         long compraId = db.insert(TABLA_COMPRAS, null, values);
 
-        // Registrar también en movimientos para que aparezca en Transacciones Recientes como compra
-        ContentValues movValues = new ContentValues();
-        movValues.put(COL_MOV_CUENTA_ID, 1);
-        movValues.put(COL_MOV_TIPO, "egreso");
-        movValues.put(COL_MOV_MONTO, compra.getMonto());
-        movValues.put(COL_MOV_DESCRIPCION, "Compra: " + compra.getTitulo());
-        movValues.put(COL_MOV_FECHA, compra.getFecha() != null ? compra.getFecha() : "Hoy");
-        movValues.put(COL_MOV_LAT, compra.getLatitud() != null ? compra.getLatitud() : -33.4372);
-        movValues.put(COL_MOV_LNG, compra.getLongitud() != null ? compra.getLongitud() : -70.6506);
-        String cat = compra.getCategoria() != null && !compra.getCategoria().trim().isEmpty() ? compra.getCategoria() : "Compra";
-        movValues.put(COL_MOV_CATEGORIA, cat);
-        db.insert(TABLA_MOVIMIENTOS, null, movValues);
+        // Registrar en movimientos solo si la compra es realizada para no descontar saldo de compras futuras/agendadas
+        if (compra.isEsRealizada()) {
+            ContentValues movValues = new ContentValues();
+            movValues.put(COL_MOV_CUENTA_ID, 1);
+            movValues.put(COL_MOV_TIPO, "egreso");
+            movValues.put(COL_MOV_MONTO, compra.getMonto());
+            movValues.put(COL_MOV_DESCRIPCION, "Compra: " + compra.getTitulo());
+            movValues.put(COL_MOV_FECHA, compra.getFecha() != null ? compra.getFecha() : "Hoy");
+            movValues.put(COL_MOV_LAT, compra.getLatitud() != null ? compra.getLatitud() : -33.4372);
+            movValues.put(COL_MOV_LNG, compra.getLongitud() != null ? compra.getLongitud() : -70.6506);
+            String cat = compra.getCategoria() != null && !compra.getCategoria().trim().isEmpty() ? compra.getCategoria() : "Compra";
+            movValues.put(COL_MOV_CATEGORIA, cat);
+            db.insert(TABLA_MOVIMIENTOS, null, movValues);
+        }
 
         return compraId;
     }

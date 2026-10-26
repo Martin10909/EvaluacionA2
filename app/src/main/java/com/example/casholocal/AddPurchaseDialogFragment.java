@@ -196,9 +196,9 @@ public class AddPurchaseDialogFragment extends DialogFragment {
         final Long fContactoId = contactoIdSelected;
         final String fContactoNombre = contactoNombreSelected;
 
-        if (getContext() != null && (androidx.core.app.ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        if (getActivity() != null && getContext() != null && (androidx.core.app.ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) == android.content.pm.PackageManager.PERMISSION_GRANTED
                 || androidx.core.app.ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) == android.content.pm.PackageManager.PERMISSION_GRANTED)) {
-            com.google.android.gms.location.FusedLocationProviderClient client = com.google.android.gms.location.LocationServices.getFusedLocationProviderClient(requireActivity());
+            com.google.android.gms.location.FusedLocationProviderClient client = com.google.android.gms.location.LocationServices.getFusedLocationProviderClient(getActivity());
             client.getLastLocation().addOnSuccessListener(loc -> {
                 double lat = loc != null ? loc.getLatitude() : -33.4372;
                 double lng = loc != null ? loc.getLongitude() : -70.6506;
@@ -215,7 +215,9 @@ public class AddPurchaseDialogFragment extends DialogFragment {
     private void insertarYFinalizarCompra(String titulo, double monto, String fecha, boolean realizada, Long contactoId, String contactoNombre, String categoria, double lat, double lng) {
         if (dbHelper != null) {
             dbHelper.insertarCompra(new CompraModel(0, titulo, monto, fecha, realizada, contactoId, contactoNombre, categoria, lat, lng));
-            Toast.makeText(getContext(), "Compra guardada con éxito", Toast.LENGTH_SHORT).show();
+            if (getContext() != null) {
+                Toast.makeText(getContext(), "Compra guardada con éxito", Toast.LENGTH_SHORT).show();
+            }
 
             if (getParentFragment() instanceof PurchasesFragment) {
                 ((PurchasesFragment) getParentFragment()).actualizarResumenYLista();

@@ -42,7 +42,7 @@ public class CompraAdapter extends RecyclerView.Adapter<CompraAdapter.CompraView
         CompraModel compra = listaCompras.get(position);
         holder.tvtitulocompra.setText(compra.getTitulo());
         holder.tvcategoriacompra.setText(compra.getCategoria() != null ? compra.getCategoria() : "General");
-        holder.tvmontocompra.setText(String.format(Locale.getDefault(), "$%.2f", compra.getMonto()));
+        holder.tvmontocompra.setText(FormatoMoneda.aPesoChileno(compra.getMonto()));
         holder.tvestadocompra.setText(compra.isEsRealizada() ? "Realizada" : "Agendada");
 
         String contactoInfo = compra.getContactoNombre() != null ? " | Contacto: " + compra.getContactoNombre() : "";
@@ -61,7 +61,7 @@ public class CompraAdapter extends RecyclerView.Adapter<CompraAdapter.CompraView
             builder.setTitle("Detalle de Compra");
 
             String mensajeDetalle = "Título: " + compra.getTitulo() + "\n" +
-                    "Monto: " + String.format(Locale.getDefault(), "$%.2f", compra.getMonto()) + "\n" +
+                    "Monto: " + FormatoMoneda.aPesoChileno(compra.getMonto()) + "\n" +
                     "Categoría: " + (compra.getCategoria() != null ? compra.getCategoria() : "General") + "\n" +
                     "Fecha: " + (compra.getFecha() != null ? compra.getFecha() : "Programada") + "\n" +
                     "Estado: " + (compra.isEsRealizada() ? "Realizada" : "Agendada Futura") + "\n" +

@@ -363,13 +363,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 continue;
             }
 
-            double lat = mov.getLatitud();
-            double lng = mov.getLongitud();
+            Double latObj = mov.getLatitud();
+            Double lngObj = mov.getLongitud();
 
-            if (lat == 0 && lng == 0) {
-                lat = -33.4372;
-                lng = -70.6506;
-            }
+            double lat = (latObj != null && latObj != 0) ? latObj : -33.4372;
+            double lng = (lngObj != null && lngObj != 0) ? lngObj : -70.6506;
 
             LatLng pos = new LatLng(lat, lng);
             boolean esIngreso = "ingreso".equalsIgnoreCase(mov.getTipo());
