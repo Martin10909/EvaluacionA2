@@ -4,7 +4,8 @@
 **Docente:** Benjamín Mora Torres  
 **Integrantes:** 
 * Kevin Moraga
-* Martín Lonconado  
+* Martín Lonconado
+* Pablo Mendoza
 **Institución:** Santo Tomás  
 **Plataforma:** Android Nativo (Java)  
 **Versión:** 1.0 (Evaluación A2)
