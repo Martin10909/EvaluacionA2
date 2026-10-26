@@ -66,12 +66,17 @@ public class CompraAdapter extends RecyclerView.Adapter<CompraAdapter.CompraView
                     "Fecha: " + (compra.getFecha() != null ? compra.getFecha() : "Programada") + "\n" +
                     "Estado: " + (compra.isEsRealizada() ? "Realizada" : "Agendada Futura") + "\n" +
                     "Contacto Vinculado: " + (compra.getContactoNombre() != null ? compra.getContactoNombre() : "Ninguno") + "\n" +
-                    "GPS: -33.4372, -70.6506";
+                    "GPS: " + (compra.getLatitud() != null && compra.getLongitud() != null ?
+                            String.format(java.util.Locale.getDefault(), "%.4f, %.4f", compra.getLatitud(), compra.getLongitud()) : "No registrado");
 
             builder.setMessage(mensajeDetalle);
 
             builder.setPositiveButton("Ver en Mapa", (dialog, which) -> {
                 Intent intent = new Intent(holder.itemView.getContext(), MapActivity.class);
+                if (compra.getLatitud() != null && compra.getLongitud() != null) {
+                    intent.putExtra("lat", compra.getLatitud());
+                    intent.putExtra("lng", compra.getLongitud());
+                }
                 holder.itemView.getContext().startActivity(intent);
             });
 
